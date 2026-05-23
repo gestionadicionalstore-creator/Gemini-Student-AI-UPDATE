@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El Rol de Java y HTML en Sistemas en Tiempo Real</title>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: Arial, sans-serif;
+    }
+    body {
+        background: #0f0f0f;
+        color: white;
+        padding: 40px 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+    }
+    .info-container {
+        max-width: 750px;
+        width: 100%;
+        background: #181818;
+        padding: 35px;
+        border-radius: 25px;
+        box-shadow: 0 0 25px rgba(0,0,0,0.7);
+    }
+    
+    h1 {
+        font-size: 26px;
+        color: #7a5cff;
+        border-bottom: 1px solid #2a2a2a;
+        padding-bottom: 15px;
+        margin-bottom: 25px;
+    }
+
+    h2 {
+        font-size: 18px;
+        color: #00ffcc;
+        margin-top: 25px;
+        margin-bottom: 10px;
+    }
+
+    p {
+        font-size: 14px;
+        color: #ccc;
+        line-height: 1.6;
+        margin-bottom: 15px;
+    }
+
+    /* Tabla técnica para comparar roles */
+    .tech-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        background: #111;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    .tech-table th, .tech-table td {
+        padding: 12px 15px;
+        text-align: left;
+        font-size: 13px;
+    }
+    .tech-table th {
+        background: #222;
+        color: #7a5cff;
+        font-weight: bold;
+        border-bottom: 2px solid #2a2a2a;
+    }
+    .tech-table td {
+        border-bottom: 1px solid #2a2a2a;
+    }
+
+    /* Bloque destacado */
+    .highlight-box {
+        background: #222;
+        padding: 15px;
+        border-radius: 12px;
+        border-left: 4px solid #ff0055;
+        font-size: 13px;
+        line-height: 1.5;
+        margin: 20px 0;
+    }
+    .highlight-box strong {
+        color: #ff0055;
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    .back-btn {
+        background: #2a2a2a;
+        color: white;
+        border: 1px solid #444;
+        padding: 10px 16px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 13px;
+        text-decoration: none;
+        display: inline-block;
+        transition: 0.2s;
+        margin-top: 20px;
+    }
+    .back-btn:hover {
+        background: #7a5cff;
+        border-color: #7a5cff;
+    }
+</style>
+</head>
+<body>
+
+<div class="info-container">
+    <h1>☕ Java, HTML y la Gestión de Búfer Temporal</h1>
+    
+    <p>
+        En el desarrollo de software moderno y arquitectura de sistemas distribuidos, la combinación de tecnologías robustas de backend con interfaces ligeras de frontend es fundamental para procesar información a gran escala de forma segura.
+    </p>
+
+    <h2>¿Qué es Java y por qué es crucial?</h2>
+    <p>
+        <strong>Java</strong> es un lenguaje de programación de alto nivel, orientado a objetos y diseñado bajo el principio de <em>"escríbelo una vez, ejecútalo en cualquier lugar"</em> (WORA). Gracias a la Máquina Virtual de Java (JVM), es el motor principal utilizado por grandes infraestructuras bancarias, servidores empresariales y sistemas de Big Data debido a su alta velocidad de ejecución, manejo automático de memoria y estricta seguridad.
+    </p>
+
+    <h2>La Sinergia: Java, Clientes Web y Firebase</h2>
+    <p>
+        Mientras que lenguajes potentes manejan la persistencia de datos en bases de datos como Cloud Firestore, las tecnologías web se encargan de la presentación inmediata al usuario. 
+    </p>
+
+    <table class="tech-table">
+        <thead>
+            <tr>
+                <th>Tecnología / Capa</th>
+                <th>Función Principal en el Clúster</th>
+                <th>Persistencia</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td style="color: #a291ff; font-weight: bold;">Java / Backend de Red</td>
+                <td>Procesamiento lótico, hilos concurrentes y seguridad del servidor.</td>
+                <td>Permanente (Base de Datos Relacional / NoSQL)</td>
+            </tr>
+            <tr>
+                <td style="color: #00ffcc; font-weight: bold;">HTML5 & CSS3</td>
+                <td>Estructuración visual de la interfaz del Dashboard y adaptabilidad.</td>
+                <td>Nula (Solo renderizado estático)</td>
+            </tr>
+            <tr>
+                <td style="color: #ff0055; font-weight: bold;">JavaScript (Búfer Local)</td>
+                <td>Lógica temporal de destrucción (30s en chat / 10m en archivo).</td>
+                <td>Volátil (LocalStorage de sesión)</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Explicación del Algoritmo de Retención Temporal</h2>
+    <p>
+        El sistema de logs que implementamos utiliza una arquitectura de **búfer circular indexado por tiempo**. Cuando un nodo de red o usuario envía un paquete de texto, el sistema calcula un ciclo de vida útil del mensaje mediante la siguiente fórmula de expiración en milisegundos:
+    </p>
+    
+    <div style="background: #111; padding: 12px; text-align: center; font-family: monospace; color: #00ffcc; border-radius: 8px; margin: 15px 0; font-size: 14px;">
+        Tiempo Expiración = Tiempo Actual MS + (10 minutos &times; 60 segundos &times; 1000 ms)
+    </div>
+
+    <div class="highlight-box">
+        <strong>⚠️ Control de Destrucción Manual de Datos</strong>
+        El botón "Borrar Todo" limpia el clúster local de memoria de forma inmediata invocando un vaciado de registros compartidos. Esto simula el comportamiento de un recolector de basura (Garbage Collector) en sistemas Java reales, liberando memoria caché de inmediato.
+    </div>
+
+    <a href="./Mensajes .html" onclick="window.close(); return false;" class="back-btn">➔ Cerrar Documento</a>
+</div>
+
+</body>
+</html>

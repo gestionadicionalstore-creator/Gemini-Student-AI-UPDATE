@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GEMINI AI STUDENT</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+body {
+    background: #06040d;
+    background-image: 
+        radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 40px),
+        radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 30px),
+        radial-gradient(circle at 50% 10%, rgba(122, 92, 255, 0.15), transparent 60%);
+    background-size: 550px 550px, 350px 350px, 100% 100%;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* CONTENEDOR PRINCIPAL */
+.dashboard-container {
+    display: grid;
+    grid-template-columns: 300px 390px 300px;
+    gap: 25px;
+    max-width: 1100px;
+    width: 100%;
+}
+
+/* TARJETAS LATERALES ESPACIALES */
+.side-panel {
+    background: rgba(20, 16, 36, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(122, 92, 255, 0.2);
+    border-radius: 25px;
+    padding: 20px;
+    box-shadow: 0 0 30px rgba(122, 92, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    height: 720px;
+    overflow-y: auto;
+}
+
+.side-panel::-webkit-scrollbar {
+    width: 4px;
+}
+.side-panel::-webkit-scrollbar-thumb {
+    background: rgba(122, 92, 255, 0.3);
+    border-radius: 10px;
+}
+
+.panel-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #00ffcc;
+    text-shadow: 0 0 10px rgba(0, 255, 204, 0.3);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 10px;
+    letter-spacing: 1px;
+}
+
+/* ZONA DEL ROBOT */
+.robot-dedicated-zone {
+    background: rgba(122, 92, 255, 0.03);
+    border: 1px dashed rgba(122, 92, 255, 0.2);
+    border-radius: 18px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 100px;
+    position: relative;
+}
+
+.eva-robot-sidebar {
+    width: 52px;
+    height: 52px;
+    cursor: pointer;
+    animation: floatEva 3.5s infinite ease-in-out;
+    transition: transform 0.2s;
+}
+
+.eva-robot-sidebar:hover {
+    transform: scale(1.12);
+}
+
+.robot-local-bubble {
+    background: rgba(13, 9, 38, 0.95);
+    border: 1px solid #00ffcc;
+    box-shadow: 0 0 10px rgba(0, 255, 204, 0.2);
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-size: 11px;
+    width: 100%;
+    text-align: center;
+    line-height: 1.3;
+    opacity: 0;
+    display: none;
+    transform: translateY(5px);
+    transition: all 0.2s ease-in-out;
+    pointer-events: none;
+}
+
+.robot-local-bubble.show {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+    margin-top: 5px;
+}
+
+@keyframes floatEva {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-5px); }
+    100% { transform: translateY(0px); }
+}
+
+/* --- SECCIÓN NUEVA INTEGRADA: MENSAJE PERIÓDICO --- */
+.robot-periodic-section {
+    background: rgba(20, 16, 36, 0.85);
+    border: 1px dashed rgba(0, 255, 204, 0.3);
+    border-radius: 18px;
+    padding: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.robot-hdr {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.robot-meta {
+    display: flex;
+    flex-direction: column;
+}
+
+.robot-tag {
+    font-size: 12px;
+    font-weight: bold;
+    color: #00ffcc;
+    text-shadow: 0 0 8px rgba(0, 255, 204, 0.2);
+    text-transform: uppercase;
+}
+
+.robot-status {
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.robot-status a {
+    color: #7a5cff;
+    text-decoration: none;
+    transition: 0.2s;
+}
+
+.robot-status a:hover {
+    color: #00ffcc;
+    text-shadow: 0 0 5px #00ffcc;
+}
+
+.robot-msg-body {
+    font-size: 12.5px;
+    color: #ccc;
+    line-height: 1.4;
+    font-style: italic;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 10px;
+    border-radius: 10px;
+    border-left: 3px solid #7a5cff;
+}
+
+/* BOTÓN ESTILO GEMINI CON DESTELLO */
+.robot-link-btn {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, rgba(122, 92, 255, 0.15), rgba(0, 255, 204, 0.05));
+    border: 1px solid rgba(0, 255, 204, 0.3);
+    color: #00ffcc;
+    padding: 10px 14px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.btn-left-content {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.gemini-sparkle {
+    font-size: 13px;
+    animation: spinSparkle 3s infinite linear;
+    filter: drop-shadow(0 0 4px #00ffcc);
+}
+
+.robot-link-btn .arrow-icon {
+    color: #7a5cff;
+    font-size: 14px;
+    transition: transform 0.25s ease, color 0.25s ease;
+}
+
+.robot-link-btn:hover {
+    background: linear-gradient(135deg, #7a5cff, #00ffcc);
+    color: #06040d;
+    border-color: #00ffcc;
+    box-shadow: 0 0 15px rgba(0, 255, 204, 0.4);
+    transform: translateY(-1px);
+}
+
+.robot-link-btn:hover .arrow-icon {
+    color: #06040d;
+    transform: translateX(4px);
+}
+
+/* BOTÓN DESPLEGABLE */
+.dropdown-trigger-btn {
+    width: 100%;
+    background: rgba(122, 92, 255, 0.1);
+    border: 1px solid rgba(122, 92, 255, 0.3);
+    color: #00ffcc;
+    padding: 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: 0.2s;
+}
+
+.dropdown-trigger-btn:hover {
+    background: rgba(122, 92, 255, 0.2);
+    box-shadow: 0 0 10px rgba(122, 92, 255, 0.2);
+}
+
+.dropdown-content {
+    max-height: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dropdown-content.open {
+    max-height: 480px; 
+    margin-top: 8px;
+}
+
+.dropdown-content::-webkit-scrollbar {
+    width: 4px;
+}
+.dropdown-content::-webkit-scrollbar-thumb {
+    background: rgba(0, 255, 204, 0.4);
+    border-radius: 10px;
+}
+
+.link-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-bottom: 5px;
+}
+
+.panel-link {
+    color: #a291ff;
+    font-size: 13px;
+    text-decoration: none;
+    padding: 11px 14px;
+    background: rgba(122, 92, 255, 0.05);
+    border: 1px solid rgba(122, 92, 255, 0.1);
+    border-radius: 12px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; 
+    gap: 8px;
+}
+
+.panel-link:hover {
+    background: rgba(122, 92, 255, 0.15);
+    color: white;
+    border-color: #7a5cff;
+}
+
+.badge-new {
+    background: linear-gradient(135deg, #00ffcc 0%, #00b386 100%);
+    color: #06040d;
+    font-size: 9px;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    box-shadow: 0 0 8px rgba(0, 255, 204, 0.5);
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+}
+
+.panel-link.highlight {
+    color: #00ffcc;
+    border-color: rgba(0, 255, 204, 0.3);
+    background: rgba(0, 255, 204, 0.02);
+    font-weight: bold;
+    justify-content: center;
+}
+
+.panel-link.highlight:hover {
+    background: rgba(0, 255, 204, 0.1);
+    border-color: #00ffcc;
+    box-shadow: 0 0 10px rgba(0, 255, 204, 0.2);
+}
+
+.en-listado-zone {
+    background: rgba(0, 255, 204, 0.02);
+    border: 1px solid rgba(0, 255, 204, 0.15);
+    border-radius: 16px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.idea-card {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 12px;
+    border-radius: 12px;
+    border-left: 4px solid #7a5cff;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.idea-card strong {
+    color: #a291ff;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.skill-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.skill-name {
+    font-size: 13px;
+    color: #ccc;
+}
+.progress-bar {
+    width: 100%;
+    height: 6px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 4px;
+    overflow: hidden;
+}
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #7a5cff, #00ffcc);
+    box-shadow: 0 0 10px #7a5cff;
+}
+
+/* SECCIÓN DEL CHAT CENTRAL */
+.chat-container {
+    height: 720px;
+    background: #0d0a1a;
+    background-image: 
+        radial-gradient(circle at 50% 30%, rgba(122, 92, 255, 0.25), transparent 70%),
+        radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 0),
+        radial-gradient(rgba(255, 255, 255, 0.05) 2px, transparent 0);
+    background-size: 100% 100%, 40px 40px, 90px 90px;
+    border: 2px solid #7a5cff;
+    border-radius: 25px;
+    overflow: hidden;
+    box-shadow: 0 0 35px rgba(122, 92, 255, 0.3);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.header {
+    background: rgba(17, 13, 33, 0.85);
+    backdrop-filter: blur(5px);
+    padding: 20px;
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 0 0 10px #7a5cff;
+    border-bottom: 1px solid rgba(122, 92, 255, 0.3);
+    letter-spacing: 1px;
+}
+
+.messages {
+    flex: 1;
+    padding: 18px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 2;
+}
+
+.messages::-webkit-scrollbar {
+    width: 5px;
+}
+.messages::-webkit-scrollbar-thumb {
+    background: rgba(122, 92, 255, 0.2);
+    border-radius: 10px;
+}
+
+/* BURBUJAS DE DIÁLOGO */
+.message {
+    max-width: 78%;
+    padding: 12px 16px;
+    padding-right: 32px; 
+    border-radius: 18px;
+    animation: fadeIn 0.3s ease;
+    position: relative;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    font-size: 14px;
+    user-select: none;
+}
+
+.sent {
+    align-self: flex-end;
+    background: linear-gradient(135deg, #4c26ff 0%, #3114b1 100%);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-bottom-right-radius: 4px;
+}
+
+.received {
+    align-self: flex-start;
+    background: rgba(36, 32, 56, 0.85);
+    border: 1px solid rgba(122, 92, 255, 0.3);
+    border-bottom-left-radius: 4px;
+}
+
+.received-other {
+    align-self: flex-start;
+    background: linear-gradient(135deg, #004d4d 0%, #002b2b 100%); 
+    border: 1px solid #00ffcc;
+    border-bottom-left-radius: 4px;
+}
+
+.received-ai {
+    align-self: flex-start;
+    background: linear-gradient(135deg, #1b123a 0%, #0c081f 100%);
+    border: 1px solid #00ffcc;
+    box-shadow: 0 0 15px rgba(0, 255, 204, 0.2);
+    border-bottom-left-radius: 4px;
+}
+
+/* REACCIÓN INTEGRADA */
+.reaction-badge {
+    position: absolute;
+    bottom: -10px;
+    right: 12px;
+    background: #141024;
+    border: 1px solid #00ffcc;
+    border-radius: 12px;
+    padding: 2px 6px;
+    font-size: 12px;
+    box-shadow: 0 0 8px rgba(0, 255, 204, 0.4);
+    animation: pulse 0.2s alternate;
+    z-index: 10;
+}
+
+/* MENÚ FLOTANTE DE SELECCIÓN DE REACCIONES */
+.reaction-picker {
+    position: absolute;
+    background: #141024;
+    border: 1px solid #7a5cff;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    border-radius: 20px;
+    padding: 6px 10px;
+    display: flex;
+    gap: 8px;
+    z-index: 1000;
+    animation: fadeIn 0.15s ease;
+}
+
+.reaction-option {
+    font-size: 18px;
+    cursor: pointer;
+    transition: transform 0.15s;
+}
+.reaction-option:hover {
+    transform: scale(1.3);
+}
+
+.message img {
+    max-width: 100%;
+    max-height: 180px;
+    border-radius: 10px;
+    margin-top: 5px;
+    display: block;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.message audio {
+    max-width: 100%;
+    margin-top: 6px;
+    display: block;
+    outline: none;
+}
+
+.msg-close-btn {
+    position: absolute;
+    top: 6px;
+    right: 10px;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.4);
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+}
+.msg-close-btn:hover {
+    color: #ff0055;
+}
+
+.timer {
+    font-size: 9px;
+    opacity: 0.6;
+    margin-top: 6px;
+    letter-spacing: 0.5px;
+}
+
+/* ENTRADA DE MENSAJES */
+.input-area {
+    padding: 15px;
+    background: #0f0c1b;
+    border-top: 1px solid rgba(122, 92, 255, 0.3);
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+input[type="text"] {
+    flex: 1;
+    min-width: 0; 
+    padding: 12px 14px;
+    border: 1px solid rgba(122, 92, 255, 0.4);
+    outline: none;
+    border-radius: 14px;
+    background: rgba(20, 16, 36, 0.8);
+    color: white;
+    font-size: 14px;
+    transition: 0.2s;
+}
+input[type="text"]:focus {
+    border-color: #00ffcc;
+    box-shadow: 0 0 8px rgba(0, 255, 204, 0.2);
+}
+
+.media-btn, .send-btn {
+    height: 42px;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    font-size: 15px;
+}
+
+.media-btn {
+    width: 42px;
+    background: rgba(122, 92, 255, 0.15);
+    border: 1px solid rgba(122, 92, 255, 0.4);
+    color: #00ffcc;
+}
+.media-btn:hover {
+    background: rgba(122, 92, 255, 0.3);
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+.recording-active {
+    background: #ff0055 !important;
+    border-color: #ff0055 !important;
+    color: white !important;
+    animation: pulse 1s infinite alternate;
+}
+
+.send-btn {
+    padding: 0 16px;
+    background: #7a5cff;
+    color: white;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    box-shadow: 0 0 10px rgba(122, 92, 255, 0.4);
+    user-select: none;
+}
+.send-btn:hover {
+    background: #623be6;
+    box-shadow: 0 0 15px rgba(122, 92, 255, 0.6);
+    transform: translateY(-2px);
+}
+
+.action-btn {
+    width: 100%;
+    background: rgba(155, 96, 96, 0.2);
+    border: 1px solid rgba(255,255,255,0.1);
+    font-size: 13px;
+    margin-top: 5px;
+    color: white;
+    cursor: pointer;
+    padding: 12px;
+    border-radius: 12px;
+    transition: 0.2s;
+}
+.action-btn:hover {
+    background: #7a5cff;
+    border-color: #7a5cff;
+}
+
+/* VENTANA MODAL */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(5, 3, 13, 0.85);
+    backdrop-filter: blur(5px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+.modal-box {
+    background: #141024;
+    border: 2px solid #00ffcc;
+    box-shadow: 0 0 25px #00ffcc;
+    padding: 25px;
+    border-radius: 20px;
+    max-width: 340px;
+    width: 100%;
+    text-align: center;
+}
+.modal-box h3 {
+    color: #00ffcc;
+    margin-bottom: 12px;
+    font-size: 18px;
+}
+.modal-box select {
+    width: 100%;
+    background: #0d0a1a;
+    border: 1px solid #7a5cff;
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    margin: 15px 0;
+    outline: none;
+}
+.modal-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+.modal-btn-confirm {
+    background: #00ffcc; color: #0d0a1a; font-weight: bold;
+    border: none; padding: 10px 15px; border-radius: 10px; cursor: pointer;
+}
+.modal-btn-cancel {
+    background: rgba(255,255,255,0.1); color: white;
+    border: none; padding: 10px 15px; border-radius: 10px; cursor: pointer;
+}
+
+@keyframes fadeIn{
+    from{ opacity:0; transform:translateY(10px); }
+    to{ opacity:1; transform:translateY(0); }
+}
+
+@keyframes pulse {
+    from { transform: scale(1); }
+    to { transform: scale(1.05); }
+}
+
+@keyframes spinSparkle {
+    0% { transform: scale(1) rotate(0deg); opacity: 0.8; }
+    50% { transform: scale(1.1) rotate(180deg); opacity: 1; }
+    100% { transform: scale(1) rotate(360deg); opacity: 0.8; }
+}
+
+@media (max-width: 1000px) {
+    .dashboard-container {
+        grid-template-columns: 100%;
+        max-width: 390px;
+    }
+    .side-panel {
+        height: auto;
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="modal-overlay" id="archiveModal">
+    <div class="modal-box">
+        <h3>🚀 Archivo Avanzado</h3>
+        <p style="font-size: 13px; color: #ccc;">Selecciona el tiempo de preservación para la base de datos externa.</p>
+        <select id="archiveTimeSelect">
+            <option value="3600">Archivar por: 1 Hora</option>
+            <option value="7200">Archivar por: 2 Horas</option>
+            <option value="21600">Archivar por: 6 Horas</option>
+            <option value="43200">Archivar por: 12 Horas</option>
+            <option value="86400" selected>Archivar por: 24 Horas</option>
+        </select>
+        <div class="modal-buttons">
+           
+            <button class="modal-btn-cancel" onclick="cerrarModal()">Cancelar</button>
+
+            <button class="modal-btn-confirm" onclick="confirmarArchivado()">Confirmar</button>
+            <button class="modal-btn-cancel" onclick="cerrarModal()">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-container">
+
+    <div class="side-panel">
+        <div class="panel-title">Archivos de Red</div>
+        <p style="font-size: 13px; color: #aaa; line-height: 1.4;">
+            Accede de forma segura al registro para gestionar la actividad de preguntas hacia Gemini.
+        </p>
+         <button class="action-btn" style="margin-top: 0; background: rgba(122, 92, 255, 0.15); border-color: rgba(122, 92, 255, 0.3); color: #00ffcc;"><a href="https://gemini.google.com/app?hl=es" style="color: #00ffcc;">IR A GEMINI </a>
+            </button>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+             <button class="action-btn" style="margin-top: 0; background: rgba(122, 92, 255, 0.15); border-color: rgba(122, 92, 255, 0.3); color: #00ffcc;" onclick="window.open('./Archiva.html', '_blank')">Gemini AI</button>
+        </div>
+        
+        <div class="panel-title">Repositorio Especial Robot</div>
+        <div class="robot-dedicated-zone">
+            <div class="eva-robot-sidebar" onclick="lanzarMensajeAlLado()" title="¡Hazme clic para motivarte!">
+                <svg viewBox="0 0 64 64" width="100%" height="100%">
+                    <ellipse cx="32" cy="22" rx="15" ry="11" fill="#ffffff" stroke="#e0dbff" stroke-width="0.5"/>
+                    <ellipse cx="32" cy="22" rx="11" ry="7" fill="#0d0926"/>
+                    <ellipse cx="27" cy="22" rx="2.5" ry="3.5" fill="#00ffcc" filter="drop-shadow(0 0 3px #00ffcc)"/>
+                    <ellipse cx="37" cy="22" rx="2.5" ry="3.5" fill="#00ffcc" filter="drop-shadow(0 0 3px #00ffcc)"/>
+                    <path d="M20,36 C20,33 24,31 32,31 C40,31 44,33 44,36 C44,44 38,49 32,49 C26,49 20,44 20,36 Z" fill="#ffffff"/>
+                    <ellipse cx="32" cy="39" rx="4" ry="1.5" fill="#7a5cff"/>
+                </svg>
+            </div>
+            <div class="robot-local-bubble" id="robotBubble">¡Confía en ti, tú puedes!</div>
+        </div>
+
+        <div class="robot-periodic-section">
+            <div class="robot-hdr">
+                <span class="robot-icon">🤖</span>
+                <div class="robot-meta">
+                    <span class="robot-tag">Eva R — Sistema</span>
+                    <span class="robot-status"><a href="./WALL E.html">MENSAJE ACTUALIZADO</a></span>
+                </div>
+            </div>
+        
+            
+            <a href="./WALL E.html" class="robot-link-btn">
+                <div class="btn-left-content">
+                    <span class="gemini-sparkle">✨</span>
+                    <span id="geminiUpdateText">Mensajito actualizado hoy por GEMINI</span>
+                </div>
+                <span class="arrow-icon">→</span>
+            </a>
+        </div>
+
+        <button class="dropdown-trigger-btn" onclick="toggleDropdown()">
+            <span> <a href="./MAS REPOSITORIOS.html" style="color: #00ffcc;">MÁS RESPOSITORIOS</a></span>
+            <span id="dropdownArrow">▼</span>
+        </button>
+ 
+
+        <div class="panel-title">Repositorio Remoto</div>
+        <div class="en-listado-zone">
+            <a href="./En_listado.html" class="panel-link highlight">RECUPERAR TEXTOS ALEATORIOS</a>
+            <span style="font-size:11px; color:#aaa; line-height:1.3; text-align: center;">
+                Guarda tus mensajes de 1 a 24 horas usando el doble clic en "Enviar".
+            </span>
+        </div>
+    </div>
+    
+    <div class="chat-container">
+        <div class="header">Gemini Student AI</div>
+        <div class="messages" id="messages"></div>
+        
+        <div class="input-area">
+            <input type="file" id="imageInput" accept="image/*" style="display: none;" onchange="handleImageUpload(this)">
+            <button class="media-btn" title="Enviar Foto" onclick="document.getElementById('imageInput').click()">📷</button>
+            <button class="media-btn" id="audioBtn" title="Grabar Audio" onclick="toggleAudioRecording()">🎙️</button>
+            
+            <input type="text" id="messageInput" placeholder="Escribe un mensaje cósmico..." autocomplete="off">
+            <button class="send-btn" id="btnEnviar" onclick="handleSingleClick()" ondblclick="handleDoubleClick()">Enviar</button>
+        </div>
+    </div>
+
+    <div class="side-panel">
+        <div class="panel-title">Filtro de Pantalla</div>
+        <p style="font-size: 12px; color: #00ffcc;">Mensajes principales: Volátiles (300 Segundos)</p>
+
+        <div class="panel-title">Materias integradoras</div>
+        <div class="skill-group">
+            <div class="skill-name">Desarrollo de Sistemas & HTML</div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 98%;"></div></div>
+        </div>
+        <div class="skill-group">
+            <div class="skill-name">Diseño de Prototipos & 3D</div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 90%;"></div></div>
+        </div>
+
+        <div class="skill-group" style="margin-top: 5px;">
+             <button class="action-btn" style="margin-top: 0; background: rgba(0, 255, 204, 0.05); border-color: rgba(0, 255, 204, 0.2);" onclick="window.open('./Wall.html', '_blank')">Visualizar Panel General (Wall)</button>
+        </div>
+
+        <div class="panel-title">Utilidades</div>
+        <div class="idea-card" style="border-left-color: #00ffcc;">
+            <strong>Estado de Red:</strong>
+            <span> Cloud Firestore Online</span>
+        </div>
+        <button class="action-btn" style="margin-top: 0;" onclick="window.open('./JAVA.html', '_blank')">Abrir Java y HTML</button>
+        
+        <div class="panel-title">Descubre Más</div>
+        <p style="font-size: 13px; color: #aaa; line-height: 1.4;">
+            "La tecnología de vanguardia no reemplaza la creatividad humana, potencia nuestras capacidades."
+        </p>
+        <button class="action-btn" onclick="generarDatoTech()">Dato Tecnológico</button>
+        
+        <div class="link-group" style="margin-top: 5px;">
+            <a href="./Second.html" class="panel-link">Descubre más Datos</a>
+        </div>
+    </div>
+
+</div>
+
+
+
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyAWojveM3FvPHcgulPqyEqUVX7AL7rdYw",
+        authDomain: "gemini-ai-data-base.firebaseapp.com",
+        projectId: "gemini-ai-data-base",
+        storageBucket: "gemini-ai-data-base.firebasestorage.app",
+        messagingSenderId: "601122020069",
+        appId: "1:601122020069:web:4ebfefeea5aff1daeb920c",
+        measurementId: "G-K34K751P6T"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const mensajesRef = db.collection("mensajes");
+
+    const messagesContainer = document.getElementById("messages");
+    const input = document.getElementById("messageInput");
+    const miUsuarioId = Math.random().toString(36).substring(2, 11);
+
+    const usuariosExternosRegistrados = [];
+    let mediaRecorder;
+    let audioChunks = [];
+    let isRecording = false;
+    let clickTimeout; 
+    let bubbleTimeout; 
+    let activeReactionPicker = null;
+
+    function mostrarBienvenida() {
+        const messageDiv = document.createElement("div");
+        messageDiv.classList.add("message", "received");
+        messageDiv.innerHTML = `<div>¡Bienvenido! Soy tu IA de soporte. Recuerda que puedes activarme usando la frase: <strong>"Gemini realiza esta tarea"</strong>. 🚀</div>`;
+        messageDiv.addEventListener("dblclick", (e) => abrirSelectorReacciones(e, messageDiv));
+        messagesContainer.appendChild(messageDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function marcarUltimoRepositorio() {
+        const grupoLinks = document.getElementById("reposListGroup");
+        const links = grupoLinks.getElementsByTagName("a");
+        if(links.length > 0) {
+            const viejosBadges = grupoLinks.querySelectorAll(".badge-new");
+            viejosBadges.forEach(b => b.remove());
+            
+            const ultimoLink = links[links.length - 1];
+            const badge = document.createElement("span");
+            badge.classList.add("badge-new");
+            badge.innerText = "Nuevo";
+            ultimoLink.appendChild(badge);
+        }
+    }
+
+    mostrarBienvenida();
+    marcarUltimoRepositorio();
+
+    function toggleDropdown() {
+        const dropdown = document.getElementById("reposDropdown");
+        const arrow = document.getElementById("dropdownArrow");
+        dropdown.classList.toggle("open");
+        arrow.innerText = dropdown.classList.contains("open") ? "▲" : "▼";
+    }
+
+    function lanzarMensajeAlLado() {
+        const bubble = document.getElementById("robotBubble");
+        const frases = [
+            "¡Confía en ti, tú puedes con esto y con mucho más!",
+            "Recuerda que puedes hacer muchas cosas si te dedicas.",
+            "¡Confía en ti! Tienes todo el talento necesario.",
+            "No te detengas, que vas por excelente camino.",
+            "Si te enfocas y te dedicas, no habrá límites para ti."
+        ];
+        
+        const fraseAleatoria = frases[Math.floor(Math.random() * frases.length)];
+        clearTimeout(bubbleTimeout);
+        
+        bubble.innerText = fraseAleatoria;
+        bubble.classList.add("show");
+        
+        guardarEnArchivoCompartido(fraseAleatoria, "Eva Robot", 300);
+
+        bubbleTimeout = setTimeout(() => {
+            bubble.classList.remove("show");
+        }, 5500);
+    }
+
+    function guardarEnArchivoCompartido(texto, remitente, tiempoSegundos = 300) {
+        let registros = JSON.parse(localStorage.getItem("java_html_logs")) || [];
+        registros.push({
+            texto: texto,
+            usuarioCorto: remitente.substring(0, 5),
+            creadoEn: Date.now(),
+            expiraEn: Date.now() + (tiempoSegundos * 1000)
+        });
+        localStorage.setItem("java_html_logs", JSON.stringify(registros));
+    }
+
+    function handleSingleClick() {
+        clearTimeout(clickTimeout);
+        clickTimeout = setTimeout(() => {
+            sendMessage(300); 
+        }, 250); 
+    }
+
+    function handleDoubleClick() {
+        clearTimeout(clickTimeout); 
+        const text = input.value.trim();
+        if(text === "") return;
+        document.getElementById("archiveModal").style.display = "flex";
+    }
+
+    function cerrarModal() {
+        document.getElementById("archiveModal").style.display = "none";
+    }
+
+    function confirmarArchivado() {
+        const segundosSeleccionados = parseInt(document.getElementById("archiveTimeSelect").value);
+        cerrarModal();
+        sendMessage(segundosSeleccionados);
+    }
+
+    function removerBurbujaConAnimacion(elemento, intervaloId) {
+        if(intervaloId) clearInterval(intervaloId);
+        elemento.style.opacity = "0";
+        setTimeout(() => { elemento.remove(); }, 300);
+    }
+
+    function abrirSelectorReacciones(e, elementoMensaje) {
+        e.stopPropagation();
+        if (activeReactionPicker) activeReactionPicker.remove();
+
+        const picker = document.createElement("div");
+        picker.classList.add("reaction-picker");
+        const emojis = ["❤️", "👍", "🔥", "😂", "😮", "😭"];
+        
+        emojis.forEach(emoji => {
+            const span = document.createElement("span");
+            span.classList.add("reaction-option");
+            span.innerText = emoji;
+            span.onclick = function() {
+                aplicarReaccion(elementoMensaje, emoji);
+                picker.remove();
+            };
+            picker.appendChild(span);
+        });
+
+        document.body.appendChild(picker);
+        const rect = elementoMensaje.getBoundingClientRect();
+        picker.style.top = `${rect.top + window.scrollY - 40}px`;
+        picker.style.left = `${rect.left + window.scrollX + 10}px`;
+
+        activeReactionPicker = picker;
+    }
+
+    function aplicarReaccion(elementoMensaje, emoji) {
+        let badge = elementoMensaje.querySelector(".reaction-badge");
+        if (!badge) {
+            badge = document.createElement("span");
+            badge.classList.add("reaction-badge");
+            elementoMensaje.appendChild(badge);
+        }
+        badge.innerText = emoji;
+    }
+
+    document.addEventListener("click", () => {
+        if (activeReactionPicker) {
+            activeReactionPicker.remove();
+            activeReactionPicker = null;
+        }
+    });
+
+    function crearBurbujaDOM(tipo, contenido, claseRemitente) {
+        const messageDiv = document.createElement("div");
+        messageDiv.classList.add("message", ...claseRemitente);
+        messageDiv.addEventListener("dblclick", (e) => abrirSelectorReacciones(e, messageDiv));
+
+        let contenidoHTML = "";
+        if (tipo === "imagen") {
+            contenidoHTML = `<img src="${contenido}" alt="Foto compartida">`;
+        } else if (tipo === "audio") {
+            contenidoHTML = `<audio src="${contenido}" controls></audio>`;
+        } else {
+            contenidoHTML = `<div>${contenido}</div>`;
+        }
+
+        messageDiv.innerHTML = `
+            <button class="msg-close-btn" onclick="removerBurbujaConAnimacion(this.parentElement, null)">&times;</button>
+            ${contenidoHTML}
+        `;
+
+        const timer = document.createElement("div");
+        timer.classList.add("timer");
+        messageDiv.appendChild(timer);
+
+        return { messageDiv, timer };
+    }
+
+    function pushMensajeFirebase(payload) {
+        mensajesRef.add({
+            ...payload,
+            fecha: firebase.firestore.FieldValue.serverTimestamp(),
+            usuario: miUsuarioId
+        }).catch((error) => console.error("Error Firebase:", error));
+    }
+
+    function iniciarContadorBurbuja(timerElement, divElement, tiempoSegundos) {
+        let timeLeft = tiempoSegundos;
+        timerElement.innerText = `Tu respuesta en ${timeLeft}s`;
+        
+        const countdown = setInterval(() => {
+            timeLeft--;
+            if (timeLeft >= 0) {
+                if (timeLeft > 3600) {
+                    timerElement.innerText = `Guardado: ${Math.ceil(timeLeft / 3600)}h restantes`;
+                } else {
+                    timerElement.innerText = `Tu respuesta en ${timeLeft}s`;
+                }
+            }
+            if (timeLeft <= 0) {
+                removerBurbujaConAnimacion(divElement, countdown);
+            }
+        }, 1000);
+        divElement.querySelector('.msg-close-btn').setAttribute('onclick', `removerBurbujaConAnimacion(this.parentElement, ${countdown})`);
+    }
+
+    function verificarRespuestaAutomaticaIA(textoEvaluar) {
+        if (textoEvaluar === "Gemini realiza esta tarea") {
+            setTimeout(() => {
+                const respuestaIA = "En qué te puedo ayudar, está bien, te explico. Dame tu explicación y te envío, analizo tu respuesta.";
+                guardarEnArchivoCompartido(respuestaIA, "Gemini System", 300);
+
+                const { messageDiv, timer } = crearBurbujaDOM("texto", respuestaIA, ["received-ai"]);
+                messagesContainer.appendChild(messageDiv);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+                iniciarContadorBurbuja(timer, messageDiv, 300);
+            }, 1000); 
+        }
+    }
+
+    function sendMessage(tiempoExpiracion = 300){
+        const text = input.value.trim();
+        if(text === "") return;
+
+        guardarEnArchivoCompartido(text, "Mí Usuario", tiempoExpiracion);
+
+        const { messageDiv, timer } = crearBurbujaDOM("texto", text, ["sent"]);
+        messagesContainer.appendChild(messageDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        input.value = ""; 
+
+        iniciarContadorBurbuja(timer, messageDiv, tiempoExpiracion);
+        pushMensajeFirebase({ texto: text, tipo: "texto", tiempoGuardado: tiempoExpiracion });
+        verificarRespuestaAutomaticaIA(text);
+    }
+
+    function handleImageUpload(inputElement) {
+        const file = inputElement.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const base64Image = e.target.result;
+            guardarEnArchivoCompartido("[Foto Enviada]", "Mí Usuario", 300);
+            
+            const { messageDiv, timer } = crearBurbujaDOM("imagen", base64Image, ["sent"]);
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            iniciarContadorBurbuja(timer, messageDiv, 300);
+            pushMensajeFirebase({ texto: base64Image, tipo: "imagen" });
+        };
+        reader.readAsDataURL(file);
+        inputElement.value = "";
+    }
+
+    function toggleAudioRecording() {
+        const audioBtn = document.getElementById("audioBtn");
+        if (!isRecording) {
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(stream => {
+                    audioChunks = [];
+                    mediaRecorder = new MediaRecorder(stream);
+                    mediaRecorder.ondataavailable = event => { audioChunks.push(event.data); };
+
+                    mediaRecorder.onstop = () => {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/mp3' });
+                        const audioUrl = URL.createObjectURL(audioBlob);
+                        
+                        guardarEnArchivoCompartido("[Nota de Audio]", "Mí Usuario", 300);
+                        const { messageDiv, timer } = crearBurbujaDOM("audio", audioUrl, ["sent"]);
+                        messagesContainer.appendChild(messageDiv);
+                        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                        
+                        iniciarContadorBurbuja(timer, messageDiv, 300);
+                        // Conversión simple a base64 simulada para Firebase en local
+                        pushMensajeFirebase({ texto: "[Audio Stream]", tipo: "audio" });
+                    };
+
+                    mediaRecorder.start();
+                    isRecording = true;
+                    audioBtn.classList.add("recording-active");
+                }).catch(err => console.error("Error micrófono:", err));
+        } else {
+            mediaRecorder.stop();
+            isRecording = false;
+            audioBtn.classList.remove("recording-active");
+        }
+    }
+
+    function generarDatoTech() {
+        const datos = [
+            "El primer error informático real fue una polilla atrapada en un relé de la computadora Harvard Mark II en 1947.",
+            "Los primeros modelos 3D se crearon a finales de la década de 1960 utilizando primitivas geométricas básicas.",
+            "El almacenamiento en la nube no está en el cielo; son millones de servidores masivos en complejos terrestres interconectados."
+        ];
+        alert(datos[Math.floor(Math.random() * datos.length)]);
+    }
+
+    // Inicializar fecha dinámicamente en el nuevo botón estilo Gemini
+    function inicializarFechaBotonGemini() {
+        const btnTexto = document.getElementById("geminiUpdateText");
+        if (btnTexto) {
+            const opciones = { day: 'numeric', month: 'long' };
+            const fechaHoy = new Date().toLocaleDateString('es-ES', opciones);
+            btnTexto.innerText = `Mensajito actualizado hoy (${fechaHoy}) por GEMINI`;
+        }
+    }
+
+    // Ejecutar al cargar la página
+    inicializarFechaBotonGemini();
+    
+        window.addEventListener("load", () => {
+
+    const inputMensaje = document.getElementById("messageInput");
+
+    inputMensaje.addEventListener("keypress", function(e) {
+
+        if (e.key === "Enter") {
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            handleSingleClick();
+
+            return false;
+        }
+
+    });
+
+});
+
+</script>
+</body>
+</html>

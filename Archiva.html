@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ecosistema Archiva - Muro de Cartas Flotantes</title>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Segoe UI', Arial, sans-serif;
+    }
+
+    body {
+        background: #06040d;
+        background-image: 
+            radial-gradient(circle at 50% 30%, rgba(122, 92, 255, 0.15), transparent 70%),
+            radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 0);
+        background-size: 100% 100%, 40px 40px;
+        color: white;
+        min-height: 100vh;
+        padding: 40px 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    /* PANEL DE CONTROL SUPERIOR */
+    .control-panel {
+        background: rgba(20, 16, 36, 0.75);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(122, 92, 255, 0.3);
+        box-shadow: 0 0 30px rgba(122, 92, 255, 0.2);
+        padding: 15px 25px;
+        border-radius: 20px;
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        width: 100%;
+        max-width: 650px;
+        margin-bottom: 40px;
+        z-index: 10;
+    }
+
+    .control-panel input {
+        flex: 1;
+        background: rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(0, 255, 204, 0.3);
+        padding: 12px 16px;
+        border-radius: 14px;
+        color: white;
+        outline: none;
+        font-size: 14px;
+    }
+
+    .control-panel input:focus {
+        border-color: #00ffcc;
+        box-shadow: 0 0 8px rgba(0, 255, 204, 0.3);
+    }
+
+    .archive-btn {
+        background: #7a5cff;
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 14px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: 0.2s;
+    }
+
+    .archive-btn:hover {
+        background: #623be6;
+        box-shadow: 0 0 15px #7a5cff;
+        transform: translateY(-1px);
+    }
+
+    .back-link {
+        color: #00ffcc;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: bold;
+        white-space: nowrap;
+    }
+
+    /* CONTENEDOR GRID DE GLOBOS/CARTAS */
+    .board-container {
+        width: 100%;
+        max-width: 1000px;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 30px;
+        padding: 20px;
+        justify-items: center;
+    }
+
+    /* ESTILO CARTA GLOBO PERMANENTE */
+    .balloon-card {
+        background: var(--bg-color, rgba(122, 92, 255, 0.25));
+        border: 2px solid var(--border-color, #7a5cff);
+        border-radius: 50% 50% 50% 50% / 45% 45% 55% 55%; /* Forma de globo */
+        width: 200px;
+        height: 200px;
+        padding: 25px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        position: relative;
+        box-shadow: inset -8px -8px 20px rgba(0,0,0,0.4),
+                    0 10px 25px rgba(0,0,0,0.3);
+        animation: floatAmbient 4s infinite ease-in-out;
+        animation-delay: var(--delay, 0s);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    /* Hilo inferior del globo decorativo */
+    .balloon-card::after {
+        content: "";
+        position: absolute;
+        bottom: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 2px;
+        height: 16px;
+        background: var(--border-color, rgba(255, 255, 255, 0.4));
+    }
+
+    .balloon-card:hover {
+        transform: scale(1.08) translateY(-5px) !important;
+        box-shadow: inset -8px -8px 20px rgba(0,0,0,0.3),
+                    0 0 25px var(--border-color);
+        z-index: 5;
+    }
+
+    .balloon-text {
+        font-size: 14px;
+        color: #ffffff;
+        font-weight: 500;
+        line-height: 1.4;
+        word-break: break-word;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 5;
+        -webkit-box-orient: vertical;
+    }
+
+    /* BOTÓN PARA BORRAR CARTA */
+    .pop-btn {
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        background: transparent;
+        border: none;
+        color: rgba(255, 255, 255, 0.4);
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: bold;
+        transition: color 0.2s;
+    }
+
+    .pop-btn:hover {
+        color: #ff0055;
+    }
+
+    .empty-msg {
+        grid-column: 1 / -1;
+        color: #555;
+        font-style: italic;
+        font-size: 16px;
+        margin-top: 40px;
+    }
+
+    /* ANIMACIÓN SUAVE PARA MANTENERLOS FLOTANDO EN SU LUGAR */
+    @keyframes floatAmbient {
+        0% {
+            transform: translateY(0px) rotate(0deg);
+        }
+        50% {
+            transform: translateY(-10px) rotate(2deg);
+        }
+        100% {
+            transform: translateY(0px) rotate(0deg);
+        }
+    }
+</style>
+</head>
+<body>
+
+<div class="control-panel">
+    <a href="./Mensajes .html" class="back-link">← Volver al Chat</a>
+    <input type="text" id="messageInput" placeholder="Escribe una carta/mensaje permanente...">
+    <button class="archive-btn" onclick="guardarCartaGlobo()">Archivar Carta</button>
+</div>
+
+<div class="board-container" id="board">
+    </div>
+
+<script>
+    const board = document.getElementById("board");
+    const messageInput = document.getElementById("messageInput");
+
+    // Ajustes de colores de globos (Fondo traslúcido y Borde brillante)
+    const estilosColores = [
+        { bg: "rgba(0, 255, 204, 0.25)", border: "#00ffcc" },  /* Cian */
+        { bg: "rgba(122, 92, 255, 0.25)", border: "#7a5cff" }, /* Violeta */
+        { bg: "rgba(255, 0, 110, 0.25)", border: "#ff006e" },  /* Magenta */
+        { bg: "rgba(58, 190, 255, 0.25)", border: "#3abeff" }, /* Azul */
+        { bg: "rgba(255, 190, 11, 0.25)", border: "#ffbe0b" }, /* Amarillo */
+        { bg: "rgba(0, 245, 140, 0.25)", border: "#00f58c" }   /* Verde */
+    ];
+
+    // Cargar las cartas al iniciar la pantalla
+    window.onload = () => {
+        renderizarCartas();
+    };
+
+    function guardarCartaGlobo() {
+        const texto = messageInput.value.trim();
+        if (texto === "") return;
+
+        let archivoCartas = JSON.parse(localStorage.getItem("cartas_permanentes")) || [];
+        
+        // Elegir color aleatorio para esta carta
+        const colorElegido = estilosColores[Math.floor(Math.random() * estilosColores.length)];
+        
+        // Estructura del objeto carta
+        const nuevaCarta = {
+            id: Date.now(),
+            texto: texto,
+            bg: colorElegido.bg,
+            border: colorElegido.border,
+            delay: (Math.random() * 2).toFixed(2) // Retraso de animación aleatorio para naturalidad
+        };
+
+        archivoCartas.push(nuevaCarta);
+        localStorage.setItem("cartas_permanentes", JSON.stringify(archivoCartas));
+        
+        messageInput.value = ""; // Limpiar input
+        renderizarCartas();
+    }
+
+    function renderizarCartas() {
+        board.innerHTML = "";
+        let archivoCartas = JSON.parse(localStorage.getItem("cartas_permanentes")) || [];
+
+        if (archivoCartas.length === 0) {
+            board.innerHTML = `<div class="empty-msg">El tablero está vacío. Deja una carta arriba para fijarla en el espacio.</div>`;
+            return;
+        }
+
+        // Mostrar todas las cartas guardadas
+        archivoCartas.forEach((carta, index) => {
+            const div = document.createElement("div");
+            div.classList.add("balloon-card");
+            
+            // Inyectar variables de diseño CSS
+            div.style.setProperty('--bg-color', carta.bg);
+            div.style.setProperty('--border-color', carta.border);
+            div.style.setProperty('--delay', `${carta.delay}s`);
+
+            div.innerHTML = `
+                <button class="pop-btn" title="Descolgar carta" onclick="eliminarCarta(${index})">&times;</button>
+                <div class="balloon-text">${escapeHTML(carta.texto)}</div>
+            `;
+            board.appendChild(div);
+        });
+    }
+
+    function eliminarCarta(index) {
+        let archivoCartas = JSON.parse(localStorage.getItem("cartas_permanentes")) || [];
+        archivoCartas.splice(index, 1);
+        localStorage.setItem("cartas_permanentes", JSON.stringify(archivoCartas));
+        renderizarCartas();
+    }
+
+    function escapeHTML(str) {
+        return str.replace(/[&<>'"]/g, 
+            tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+        );
+    }
+
+    // Enviar carta con la tecla Enter
+    messageInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") guardarCartaGlobo();
+    });
+</script>
+
+</body>
+</html>

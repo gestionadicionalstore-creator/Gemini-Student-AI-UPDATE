@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Misión Espacial - Abducción Alien</title>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Segoe UI', Roboto, sans-serif;
+    }
+    
+    body {
+        background: #020107;
+        color: white;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        position: relative;
+    }
+
+    canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+    }
+
+    /* PANEL INTERACTIVO ILUMINADO CON GRADIENTE HÍBRIDO */
+    .transmission-panel {
+        position: relative;
+        z-index: 2;
+        max-width: 480px;
+        width: 85%;
+        background: rgba(10, 8, 24, 0.85);
+        border: 2px solid #00ffcc;
+        box-shadow: 0 0 25px rgba(0, 255, 204, 0.2), 0 20px 50px rgba(0, 0, 0, 0.9);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: 25px;
+        padding: 35px 30px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 18px;
+        
+        opacity: 0;
+        transform: scale(0.7) translateY(30px);
+        transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        margin-top: 160px;
+        animation: neonGlowPulse 2s infinite alternate;
+    }
+
+    .transmission-panel.reveal {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+
+    .panel-header {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 4px;
+        color: #00ffcc;
+        text-shadow: 0 0 8px rgba(0, 255, 204, 0.5);
+        font-weight: bold;
+    }
+
+    .main-message {
+        font-size: 28px;
+        font-weight: 800;
+        line-height: 1.4;
+        background: linear-gradient(135deg, #3ae2ff, #a2f52c);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        filter: drop-shadow(0 0 10px rgba(0, 255, 204, 0.5));
+    }
+
+    .sub-message {
+        font-size: 18px;
+        background: linear-gradient(135deg, #a2f52c, #3ae2ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-style: italic;
+        letter-spacing: 1px;
+        font-weight: 600;
+    }
+
+    .return-link {
+        color: #444;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: bold;
+        transition: color 0.2s;
+        letter-spacing: 1px;
+    }
+    .return-link:hover { color: #00ffcc; }
+
+    @keyframes neonGlowPulse {
+        0% {
+            border-color: #00ffcc;
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.2), 0 20px 50px rgba(0, 0, 0, 0.9);
+        }
+        100% {
+            border-color: #a2f52c;
+            box-shadow: 0 0 35px rgba(162, 245, 44, 0.4), 0 20px 50px rgba(0, 0, 0, 0.9);
+        }
+    }
+</style>
+</head>
+<body>
+
+<canvas id="spaceCanvas"></canvas>
+
+<div class="transmission-panel" id="msgPanel">
+    <div class="panel-header">Abducción Alien</div>
+    <div class="main-message">Eres muy importante</div>
+    <div class="sub-message">Juntitos por siempre</div>
+    <a href="./Mensajes .html" class="return-link">REGRESAR</a>
+</div>
+
+<script>
+    const canvas = document.getElementById('spaceCanvas');
+    const ctx = canvas.getContext('2d');
+    const msgPanel = document.getElementById('msgPanel');
+
+    let width, height;
+    let stars = [];
+    let orionStars = [];
+    let dipperStars = [];
+    let fireworks = [];
+    let planets = [];
+    
+    let ufo = { x: -300, y: 0, targetX: 0, targetY: 0, scale: 2.2, state: 'incoming', timer: 0, beamAlpha: 0 };
+    let cow = { x: 0, y: 0, state: 'eating', scale: 1.3, chewTimer: 0, isInside: false };
+
+    function resize() {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+        
+        if(ufo.state === 'incoming') {
+            ufo.y = height * 0.22;
+            ufo.targetX = width / 2;
+            ufo.targetY = height * 0.22;
+        }
+        if(cow.state === 'eating') {
+            cow.x = width / 2;
+            cow.y = height - 60;
+        }
+
+        let ox = width * 0.82;
+        let oy = height * 0.20;
+        orionStars = [
+            { x: ox - 35, y: oy - 50, size: 3, color: '#ffa552' }, 
+            { x: ox + 35, y: oy - 40, size: 2.2, color: '#b3d1ff' }, 
+            { x: ox - 12, y: oy, size: 2.2, color: '#ffffff' },
+            { x: ox, y: oy + 2, size: 2.2, color: '#ffffff' },
+            { x: ox + 12, y: oy + 4, size: 2.2, color: '#ffffff' },
+            { x: ox - 30, y: oy + 55, size: 2.2, color: '#b3d1ff' },
+            { x: ox + 40, y: oy + 65, size: 3.5, color: '#99ccff' } 
+        ];
+
+        let dx = width * 0.12;
+        let dy = height * 0.15;
+        dipperStars = [
+            { x: dx, y: dy }, { x: dx + 25, y: dy - 10 }, { x: dx + 50, y: dy + 5 },
+            { x: dx + 75, y: dy + 20 }, { x: dx + 72, y: dy + 50 }, { x: dx + 115, y: dy + 55 },
+            { x: dx + 120, y: dy + 22 }
+        ];
+
+        // Definición de Planetas con diferentes coordenadas, colores y estilos
+        planets = [
+            { x: width * 0.88, y: height * 0.75, radius: 18, type: 'saturn', baseColor: '#522b80', ringColor: 'rgba(170, 130, 255, 0.45)', glow: '#aa82ff' },
+            { x: width * 0.15, y: height * 0.72, radius: 25, type: 'jupiter', baseColor: '#d97d36', stripeColor: '#6e3511', glow: '#ffb075' },
+            { x: width * 0.78, y: height * 0.45, radius: 14, type: 'mars', baseColor: '#b52b44', ringColor: 'rgba(50, 20, 30, 0.6)', glow: '#ff5c77' },
+            { x: width * 0.28, y: height * 0.35, radius: 10, type: 'exoplanet', baseColor: '#1791a3', glow: '#3ae2ff' }
+        ];
+    }
+    window.addEventListener('resize', resize);
+
+    function initStars() {
+        stars = [];
+        // Súper densificación: 280 estrellas
+        for(let i = 0; i < 280; i++) {
+            stars.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                size: Math.random() * 2 + 0.5,
+                alpha: Math.random() * 0.7 + 0.2,
+                speed: Math.random() * 0.02 + 0.005,
+                burst: Math.random() < 0.15 // 15% de estrellas tienen destellos de cruz intensos
+            });
+        }
+    }
+
+    function createFireworkLaunch() {
+        let colors = ['#00ffcc', '#3ae2ff', '#a2f52c', '#ff0066', '#ffff33', '#e066ff'];
+        let targetX = Math.random() * (width - 200) + 100;
+        let targetY = Math.random() * (height * 0.4) + 50;
+        let pCount = Math.floor(Math.random() * 45) + 45;
+        let chosenColor = colors[Math.floor(Math.random() * colors.length)];
+
+        for (let i = 0; i < pCount; i++) {
+            let angle = Math.random() * Math.PI * 2;
+            let speed = Math.random() * 4.5 + 1;
+            fireworks.push({
+                x: targetX, y: targetY,
+                vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
+                alpha: 1, decay: Math.random() * 0.014 + 0.008, color: chosenColor
+            });
+        }
+    }
+
+    function updateAndDrawFireworks() {
+        for (let i = fireworks.length - 1; i >= 0; i--) {
+            let p = fireworks[i];
+            p.x += p.vx; p.y += p.vy;
+            p.vy += 0.038;
+            p.alpha -= p.decay;
+
+            if (p.alpha <= 0) {
+                fireworks.splice(i, 1);
+            } else {
+                ctx.save();
+                ctx.globalAlpha = p.alpha;
+                ctx.shadowBlur = 8; ctx.shadowColor = p.color;
+                ctx.fillStyle = p.color;
+                ctx.beginPath(); ctx.arc(p.x, p.y, 2, 0, Math.PI * 2); ctx.fill();
+                ctx.restore();
+            }
+        }
+    }
+
+    function drawSkyElements() {
+        // Constelaciones sutiles conectadas por vectores
+        ctx.strokeStyle = 'rgba(0, 210, 255, 0.09)';
+        ctx.lineWidth = 1; ctx.setLineDash([2, 4]);
+        ctx.beginPath();
+        ctx.moveTo(orionStars[0].x, orionStars[0].y); ctx.lineTo(orionStars[2].x, orionStars[2].y);
+        ctx.moveTo(orionStars[1].x, orionStars[1].y); ctx.lineTo(orionStars[4].x, orionStars[4].y);
+        ctx.moveTo(orionStars[0].x, orionStars[0].y); ctx.lineTo(orionStars[1].x, orionStars[1].y);
+        ctx.moveTo(orionStars[2].x, orionStars[2].y); ctx.lineTo(orionStars[3].x, orionStars[3].y);
+        ctx.lineTo(orionStars[4].x, orionStars[4].y);
+        ctx.moveTo(orionStars[2].x, orionStars[2].y); ctx.lineTo(orionStars[5].x, orionStars[5].y);
+        ctx.moveTo(orionStars[4].x, orionStars[4].y); ctx.lineTo(orionStars[6].x, orionStars[6].y);
+        ctx.moveTo(orionStars[5].x, orionStars[5].y); ctx.lineTo(orionStars[6].x, orionStars[6].y);
+        ctx.stroke();
+
+        orionStars.forEach(s => {
+            ctx.shadowBlur = 8; ctx.shadowColor = s.color; ctx.fillStyle = s.color;
+            ctx.beginPath(); ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2); ctx.fill();
+        });
+
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.07)';
+        ctx.beginPath();
+        ctx.moveTo(dipperStars[0].x, dipperStars[0].y);
+        for(let i = 1; i < dipperStars.length; i++) { ctx.lineTo(dipperStars[i].x, dipperStars[i].y); }
+        ctx.lineTo(dipperStars[3].x, dipperStars[3].y);
+        ctx.stroke();
+
+        ctx.setLineDash([]);
+        ctx.shadowBlur = 5; ctx.shadowColor = '#fff'; ctx.fillStyle = '#ffffff';
+        dipperStars.forEach(s => { ctx.beginPath(); ctx.arc(s.x, s.y, 2, 0, Math.PI * 2); ctx.fill(); });
+
+        // Renderizado del Sistema de Planetas Múltiples Diferenciados
+        planets.forEach(p => {
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.shadowBlur = 15; ctx.shadowColor = p.glow;
+
+            if (p.type === 'saturn' || p.type === 'mars') {
+                ctx.rotate(-0.25);
+                // Parte trasera del anillo
+                ctx.strokeStyle = p.ringColor; ctx.lineWidth = p.type === 'saturn' ? 6 : 3;
+                ctx.beginPath(); ctx.ellipse(0, 0, p.radius * 2, p.radius * 0.4, 0, Math.PI, 0); ctx.stroke();
+            }
+
+            // Esfera Base del Planeta
+            let grad = ctx.createRadialGradient(-p.radius*0.25, -p.radius*0.25, p.radius*0.1, 0, 0, p.radius);
+            grad.addColorStop(0, '#ffffff'); grad.addColorStop(0.3, p.baseColor); grad.addColorStop(1, '#02010a');
+            ctx.fillStyle = grad;
+            ctx.beginPath(); ctx.arc(0, 0, p.radius, 0, Math.PI * 2); ctx.fill();
+
+            // Detalles superficiales (Franjas de Júpiter)
+            if (p.type === 'jupiter') {
+                ctx.shadowBlur = 0;
+                ctx.fillStyle = p.stripeColor;
+                ctx.globalAlpha = 0.4;
+                ctx.fillRect(-p.radius, -p.radius * 0.4, p.radius * 2, p.radius * 0.15);
+                ctx.fillRect(-p.radius, p.radius * 0.1, p.radius * 2, p.radius * 0.2);
+                ctx.globalAlpha = 1.0;
+            }
+
+            if (p.type === 'saturn' || p.type === 'mars') {
+                // Parte frontal del anillo para superposición
+                ctx.shadowBlur = 0;
+                ctx.strokeStyle = p.ringColor;
+                ctx.beginPath(); ctx.ellipse(0, 0, p.radius * 2, p.radius * 0.4, 0, 0, Math.PI); ctx.stroke();
+            }
+            ctx.restore();
+        });
+
+        // Luna Mágica Brillante Creciente
+        let lx = width * 0.12, ly = height * 0.58;
+        ctx.save();
+        let lGrad = ctx.createRadialGradient(lx, ly, 5, lx, ly, 24);
+        lGrad.addColorStop(0, '#ffffff'); lGrad.addColorStop(1, '#3ae2ff');
+        ctx.fillStyle = lGrad; ctx.shadowBlur = 22; ctx.shadowColor = '#00ffff';
+        ctx.beginPath(); ctx.arc(lx, ly, 24, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = 'rgba(15, 10, 35, 0.85)'; ctx.shadowBlur = 0;
+        ctx.beginPath(); ctx.arc(lx + 8, ly - 4, 20, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+    }
+
+    function drawCuteAlienCat(cx, cy, baseColor, cheekColor, scale, bobbing) {
+        ctx.save(); ctx.translate(cx, cy + bobbing); ctx.scale(scale, scale);
+        ctx.shadowBlur = 8; ctx.shadowColor = baseColor;
+
+        ctx.fillStyle = baseColor;
+        ctx.beginPath(); ctx.ellipse(-13, -33, 6, 14, -0.06, 0, Math.PI * 2); ctx.ellipse(13, -33, 6, 14, 0.06, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#fffca8';
+        ctx.beginPath(); ctx.ellipse(-13, -35, 3, 9, -0.06, 0, Math.PI * 2); ctx.ellipse(13, -35, 3, 9, 0.06, 0, Math.PI * 2); ctx.fill();
+
+        ctx.fillStyle = baseColor;
+        ctx.beginPath(); ctx.moveTo(-28, -6); ctx.quadraticCurveTo(-33, -22, -15, -18); ctx.closePath(); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(28, -6); ctx.quadraticCurveTo(33, -22, 15, -18); ctx.closePath(); ctx.fill();
+
+        ctx.beginPath(); ctx.arc(0, -4, 30, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#fffca8';
+        ctx.beginPath(); ctx.ellipse(-20, -16, 5, 8, 0.3, 0, Math.PI * 2); ctx.ellipse(20, -16, 5, 8, -0.3, 0, Math.PI * 2); ctx.fill();
+
+        ctx.fillStyle = cheekColor;
+        ctx.beginPath(); ctx.arc(-17, 5, 7, 0, Math.PI * 2); ctx.arc(17, 5, 7, 0, Math.PI * 2); ctx.fill();
+
+        ctx.strokeStyle = baseColor; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(-28, 1); ctx.lineTo(-37, 0); ctx.moveTo(-27, 5); ctx.lineTo(-35, 6);
+        ctx.moveTo(28, 1); ctx.lineTo(37, 0); ctx.moveTo(27, 5); ctx.lineTo(35, 6); ctx.stroke();
+
+        ctx.fillStyle = '#161d2b';
+        ctx.beginPath(); ctx.arc(-12, 0, 6.5, 0, Math.PI * 2); ctx.arc(12, 0, 6.5, 0, Math.PI * 2); ctx.fill();
+
+        ctx.strokeStyle = '#161d2b'; ctx.lineWidth = 2.5; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.arc(-2.5, 4.5, 2.5, 0, Math.PI, false); ctx.stroke();
+        ctx.beginPath(); ctx.arc(2.5, 4.5, 2.5, 0, Math.PI, false); ctx.stroke();
+
+        ctx.fillStyle = baseColor;
+        ctx.beginPath(); ctx.ellipse(0, 32, 22, 15, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+    }
+
+    function drawUFO(x, y, scale) {
+        ctx.save(); ctx.translate(x, y); ctx.scale(scale, scale);
+
+        ctx.fillStyle = 'rgba(100, 255, 255, 0.15)';
+        ctx.beginPath(); ctx.arc(0, -6, 52, Math.PI, 0, false); ctx.fill();
+
+        let bobGreen = Math.sin(Date.now() * 0.005) * 1.5;
+        let bobBlue = Math.cos(Date.now() * 0.005) * 1.5;
+        drawCuteAlienCat(-20, -10, '#3ae2ff', 'rgba(0,180,255,0.3)', 0.65, bobBlue);
+        drawCuteAlienCat(20, -10, '#a2f52c', 'rgba(120,220,0,0.35)', 0.65, bobGreen);
+
+        ctx.fillStyle = '#13112c'; ctx.shadowBlur = Math.sin(Date.now() * 0.01) * 10 + 15; ctx.shadowColor = '#00ffcc';
+        ctx.beginPath(); ctx.ellipse(0, 14, 76, 15, 0, 0, Math.PI * 2); ctx.fill();
+
+        ctx.shadowBlur = 0;
+        for(let i = -3; i <= 3; i++) {
+            ctx.fillStyle = (Math.floor(Date.now() / 200) % 2 === 0 && i % 2 === 0) ? '#ff0066' : '#00ffcc';
+            ctx.beginPath(); ctx.arc(i * 18, 14, 3, 0, Math.PI * 2); ctx.fill();
+        }
+        ctx.restore();
+    }
+
+    // --- VAQUITA SUPER EXPRESIVA (PANIC/SHOCK EDITION) ---
+    function drawCuteCow(cx, cy, scale) {
+        ctx.save(); ctx.translate(cx, cy); ctx.scale(scale, scale);
+
+        // Cuerpo principal
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath(); ctx.ellipse(0, 10, 24, 18, 0, 0, Math.PI * 2); ctx.fill();
+
+        // Manchas
+        ctx.fillStyle = '#232331';
+        ctx.beginPath(); ctx.arc(10, 2, 7, 0, Math.PI*2); ctx.ellipse(-12, 16, 6, 10, 0.4, 0, Math.PI*2); ctx.fill();
+
+        // Patas
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(-14, 24, 5, 8); ctx.fillRect(-4, 26, 5, 8); ctx.fillRect(8, 24, 5, 8);
+        ctx.fillStyle = '#232331';
+        ctx.fillRect(-14, 30, 5, 3); ctx.fillRect(-4, 32, 5, 3); ctx.fillRect(8, 30, 5, 3);
+
+        // Cabeza
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath(); ctx.arc(0, -10, 16, 0, Math.PI * 2); ctx.fill();
+
+        // Orejas y Cuernos
+        ctx.fillStyle = '#ffc0cb';
+        ctx.beginPath(); ctx.ellipse(-18, -14, 4, 7, 0.5, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath(); ctx.ellipse(18, -14, 4, 7, -0.5, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#fff4b8';
+        ctx.beginPath(); ctx.arc(-6, -25, 2.5, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(6, -25, 2.5, 0, Math.PI*2); ctx.fill();
+
+        // Hocico
+        ctx.fillStyle = '#ffb3c6';
+        ctx.beginPath(); ctx.ellipse(0, -5, 11, 6, 0, 0, Math.PI * 2); ctx.fill();
+
+        if (cow.state === 'scared' || cow.state === 'floating') {
+            // 1. OJOS DE PÁNICO EXTREMO (Súper grandes y esferas blancas expresivas)
+            ctx.fillStyle = '#ffffff';
+            ctx.strokeStyle = '#232331'; ctx.lineWidth = 2;
+            
+            ctx.beginPath(); ctx.arc(-7, -15, 7, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+            ctx.beginPath(); ctx.arc(7, -15, 7, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+
+            // Pequeñas pupilas negras vibrando descontroladamente de terror
+            let shakeX = (Math.random() - 0.5) * 1.8;
+            let shakeY = (Math.random() - 0.5) * 1.8;
+            ctx.fillStyle = '#000000';
+            ctx.beginPath(); ctx.arc(-7 + shakeX, -15 + shakeY, 2, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(7 + shakeX, -15 + shakeY, 2, 0, Math.PI * 2); ctx.fill();
+
+            // Cejas arqueadas hacia arriba denotando preocupación / shock
+            ctx.strokeStyle = '#232331'; ctx.lineWidth = 2.5; ctx.lineCap = 'round';
+            ctx.beginPath(); ctx.moveTo(-13, -24); ctx.quadraticCurveTo(-8, -27, -2, -23); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(13, -24); ctx.quadraticCurveTo(8, -27, 2, -23); ctx.stroke();
+
+            // 2. BOCA EN TOTAL EXPRESIÓN DE ASOMBRO (Gran elipse abierta verticalmente)
+            ctx.fillStyle = '#7a1f31';
+            ctx.beginPath(); ctx.ellipse(0, -4, 4, 6, 0, 0, Math.PI * 2); ctx.fill();
+            // Lengua pequeña al fondo de la boca descolocada
+            ctx.fillStyle = '#fa809e';
+            ctx.beginPath(); ctx.ellipse(0, -1, 2.5, 2, 0, 0, Math.PI * 2); ctx.fill();
+        } else {
+            // Ojos tranquilos comiendo pacíficamente antes del suceso
+            ctx.strokeStyle = '#232331'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.arc(-6, -12, 2.5, Math.PI, 0, false); ctx.stroke();
+            ctx.beginPath(); ctx.arc(6, -12, 2.5, Math.PI, 0, false); ctx.stroke();
+            
+            ctx.fillStyle = '#fa809e';
+            ctx.beginPath(); ctx.arc(-3, -6, 1.5, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(3, -6, 1.5, 0, Math.PI*2); ctx.fill();
+
+            cow.chewTimer += 0.15;
+            let chewMove = Math.sin(cow.chewTimer) * 2;
+            ctx.strokeStyle = '#7be329'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.moveTo(2, -4); ctx.lineTo(12 + chewMove, -2 + chewMove); ctx.stroke();
+        }
+        ctx.restore();
+    }
+
+    function drawTractorBeam() {
+        if(ufo.beamAlpha > 0) {
+            ctx.save();
+            let topW = 35 * ufo.scale; let botW = 120 * ufo.scale;
+            let grad = ctx.createLinearGradient(ufo.x, ufo.y, ufo.x, height);
+            grad.addColorStop(0, `rgba(0, 255, 204, ${ufo.beamAlpha * 0.8})`);
+            grad.addColorStop(0.4, `rgba(0, 220, 255, ${ufo.beamAlpha * 0.35})`);
+            grad.addColorStop(0.9, `rgba(162, 245, 44, 0)`);
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.moveTo(ufo.x - topW, ufo.y + 20); ctx.lineTo(ufo.x + topW, ufo.y + 20);
+            ctx.lineTo(ufo.x + botW, height); ctx.lineTo(ufo.x - botW, height);
+            ctx.closePath(); ctx.fill();
+            ctx.restore();
+        }
+    }
+
+    function loop() {
+        // Lienzo Cósmico Gradiente de Vanguardia (Violeta Eléctrico -> Azul Abisal -> Espacio Negro)
+        let skyGrad = ctx.createLinearGradient(0, 0, 0, height);
+        skyGrad.addColorStop(0, '#170a36');  
+        skyGrad.addColorStop(0.45, '#05041a'); 
+        skyGrad.addColorStop(1, '#010005');   
+        ctx.fillStyle = skyGrad;
+        ctx.fillRect(0, 0, width, height);
+
+        // Pradera nocturna minimalista
+        ctx.fillStyle = '#05120e'; ctx.fillRect(0, height - 45, width, 45);
+        ctx.fillStyle = '#081f18'; ctx.fillRect(0, height - 20, width, 20);
+
+        // Estrellas parpadeantes con destellos volumétricos aleatorios
+        stars.forEach(s => {
+            s.alpha += s.speed;
+            if(s.alpha > 1 || s.alpha < 0.15) s.speed = -s.speed;
+            
+            ctx.save();
+            ctx.fillStyle = `rgba(255, 255, 255, ${s.alpha})`;
+            ctx.fillRect(s.x, s.y, s.size, s.size);
+
+            // Generación de destellos brillantes dinámicos en forma de cruz de luz
+            if(s.burst && s.alpha > 0.75) {
+                ctx.strokeStyle = `rgba(160, 240, 255, ${s.alpha - 0.4})`;
+                ctx.lineWidth = 0.8;
+                ctx.beginPath();
+                ctx.moveTo(s.x - 4, s.y + s.size/2); ctx.lineTo(s.x + s.size + 4, s.y + s.size/2);
+                ctx.moveTo(s.x + s.size/2, s.y - 4); ctx.lineTo(s.x + s.size/2, s.y + s.size + 4);
+                ctx.stroke();
+            }
+            ctx.restore();
+        });
+
+        drawSkyElements();
+
+        // CONTROL INTEGRADO DE LOGICA CINEMÁTICA
+        if (ufo.state === 'incoming') {
+            ufo.x += (ufo.targetX - ufo.x) * 0.03;
+            ufo.y += (ufo.targetY - ufo.y) * 0.03;
+            if (Math.abs(ufo.x - ufo.targetX) < 2) ufo.state = 'firingBeam';
+        } 
+        else if (ufo.state === 'firingBeam') {
+            ufo.beamAlpha += 0.05;
+            if(ufo.beamAlpha >= 1) {
+                ufo.beamAlpha = 1; ufo.state = 'abducting';
+                cow.state = 'scared'; ufo.timer = 0;
+            }
+        } 
+        else if (ufo.state === 'abducting') {
+            ufo.timer++;
+            ufo.y = (height * 0.22) + Math.sin(Date.now() * 0.003) * 4;
+            cow.state = 'floating';
+            cow.y -= 2.6; cow.scale -= 0.0035;
+
+            if (cow.y <= ufo.y + 25) {
+                cow.isInside = true;
+                ufo.state = 'hovering'; ufo.timer = 0;
+                msgPanel.classList.add('reveal');
+            }
+        }
+        else if (ufo.state === 'hovering') {
+            ufo.timer++;
+            ufo.y = (height * 0.22) + Math.sin(Date.now() * 0.003) * 4;
+            
+            // Lanzamiento rítmico de pirotecnia multicolor tras completarse la abducción
+            if (ufo.timer % 20 === 0 && ufo.timer < 160) {
+                createFireworkLaunch();
+            }
+
+            if (ufo.timer > 140) {
+                ufo.beamAlpha -= 0.05;
+                if(ufo.beamAlpha < 0) ufo.beamAlpha = 0;
+            }
+            if (ufo.timer > 210) {
+                ufo.state = 'leaving';
+                ufo.targetX = width + 400; ufo.targetY = -250;
+            }
+        } 
+        else if (ufo.state === 'leaving') {
+            ufo.x += (ufo.targetX - ufo.x) * 0.045;
+            ufo.y += (ufo.targetY - ufo.y) * 0.045;
+            ufo.scale -= 0.006;
+            
+            if (Math.random() < 0.025) {
+                createFireworkLaunch();
+            }
+        }
+
+        drawTractorBeam();
+
+        if (!cow.isInside) {
+            drawCuteCow(cow.x, cow.y, Math.max(0.1, cow.scale));
+        }
+
+        drawUFO(ufo.x, ufo.y, Math.max(0.1, ufo.scale));
+        updateAndDrawFireworks();
+
+        requestAnimationFrame(loop);
+    }
+
+    // Inicialización del entorno
+    resize();
+    initStars();
+    loop();
+</script>
+</body>
+</html>

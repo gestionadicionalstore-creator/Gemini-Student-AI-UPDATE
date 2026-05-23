@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.1">
+    <title>WALL-E y EVE Bebés - Amor Enchulado</title>
+    <style>
+        /* --- FONDO ESPACIAL CARICATURA --- */
+        body {
+            margin: 0;
+            padding: 0;
+            background: radial-gradient(circle at center, #1b0c36 0%, #06020f 90%);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: sans-serif;
+        }
+
+        .space-container {
+            position: relative;
+            width: 950px;
+            height: 580px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 24px;
+            box-shadow: 0 30px 70px rgba(0,0,0,0.7);
+        }
+
+        .cosmic-stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(#fff, rgba(255,255,255,.4) 2.5px, transparent 35px),
+                radial-gradient(#ffdf79, rgba(255,223,121,.2) 2px, transparent 25px);
+            background-size: 300px 300px, 200px 200px;
+            animation: starTwinkle 4s infinite ease-in-out;
+        }
+
+        @keyframes starTwinkle {
+            0%, 100% { opacity: 0.95; }
+            50% { opacity: 0.5; }
+        }
+
+        .stage {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 100px;
+        }
+
+        .cartoon-outline {
+            border: 4.5px solid #000000 !important;
+        }
+
+        /* ===================================================
+           WALL-E BEBÉ (FLOR ADELANTE Y OJOS ENSANCHADOS)
+           =================================================== */
+        .walle-anchor {
+            position: relative;
+            transform: translateY(60px);
+        }
+
+        .walle-chibi {
+            position: relative;
+            width: 170px;
+            height: 180px;
+        }
+
+        /* Binoculares gigantes corregidos */
+        .walle-chibi .binocular-head {
+            display: flex;
+            position: absolute;
+            top: -5px;
+            left: -8px;
+            z-index: 5;
+            animation: walleShyHead 8s infinite ease-in-out;
+        }
+
+        .walle-chibi .eye-lens {
+            width: 86px;
+            height: 72px;
+            background: #bebebe;
+            border-radius: 48% 48% 40% 44%;
+            position: relative;
+            box-shadow: inset -4px -4px 0 rgba(0,0,0,0.1);
+        }
+        .walle-chibi .eye-lens.left { transform: rotate(11deg); margin-right: -2px; }
+        .walle-chibi .eye-lens.right { transform: rotate(-11deg) scaleX(-1); }
+
+        .walle-chibi .white-bg {
+            position: absolute;
+            width: 72px;
+            height: 58px;
+            background: #ffffff;
+            border-radius: 50%;
+            top: 3px;
+            left: 3px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* ¡Pupila interactiva! Se ensancha (crece) cuando se sonroja */
+        .walle-chibi .giant-pupil {
+            position: relative;
+            width: 52px;
+            height: 52px;
+            background: #000000;
+            border-radius: 50%;
+            animation: pupilExpand 8s infinite ease-in-out;
+        }
+
+        /* Destellos tiernos de gotitas */
+        .walle-chibi .giant-pupil::before {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 24px;
+            background: #ffffff;
+            border-radius: 50%;
+            top: 6px;
+            left: 14px;
+            transform: rotate(15deg);
+        }
+        .walle-chibi .giant-pupil::after {
+            content: '';
+            position: absolute;
+            width: 7px;
+            height: 7px;
+            background: #ffffff;
+            border-radius: 50%;
+            top: 32px;
+            left: 30px;
+        }
+
+        /* Sonrojo tierno en las mejillas */
+        .walle-chibi .blush-effect {
+            position: absolute;
+            width: 38px;
+            height: 16px;
+            background: rgba(255, 46, 99, 0.75);
+            border-radius: 50%;
+            filter: blur(3px);
+            top: 54px;
+            opacity: 0;
+            z-index: 6;
+            animation: walleBlushGlow 8s infinite ease-in-out;
+        }
+        .walle-chibi .blush-effect.l { left: 14px; }
+        .walle-chibi .blush-effect.r { right: 14px; }
+
+        /* Cuello pequeño de bebé */
+        .walle-chibi .neck-joint {
+            width: 22px;
+            height: 24px;
+            background: #dca036;
+            position: absolute;
+            top: 58px;
+            left: 69px;
+            border-radius: 6px;
+        }
+
+        /* Cuerpo compacto Chibi */
+        .walle-chibi .body-cube {
+            width: 104px;
+            height: 86px;
+            background: #a95200;
+            border-radius: 16px;
+            position: absolute;
+            top: 76px;
+            left: 28px;
+            z-index: 3;
+        }
+
+        .walle-chibi .chest-gate {
+            position: absolute;
+            width: 76px;
+            height: 50px;
+            background: #874100;
+            border-radius: 10px;
+            top: 20px;
+            left: 11px;
+            transform-origin: bottom center;
+            animation: chestOpen 8s infinite ease-in-out;
+        }
+
+        /* Orugas / Llantas */
+        .walle-chibi .caterpillar-tracks {
+            position: absolute;
+            bottom: -3px;
+            width: 142px;
+            display: flex;
+            justify-content: space-between;
+            left: 9px;
+            z-index: 2;
+        }
+        .walle-chibi .track-wheel {
+            width: 36px;
+            height: 36px;
+            background: #9d9d9d;
+            border-radius: 12px;
+            background-image: repeating-linear-gradient(to bottom, #000, #000 4px, #9d9d9d 4px, #9d9d9d 8px);
+        }
+
+        /* Brazos */
+        .walle-chibi .arm-lever {
+            position: absolute;
+            width: 52px;
+            height: 16px;
+            background: #bebebe;
+            top: 100px;
+            z-index: 4;
+            border-radius: 8px;
+            transform-origin: left center;
+        }
+        .walle-chibi .arm-lever.left { left: -14px; transform: rotate(15deg); }
+        .walle-chibi .arm-lever.right {
+            right: -16px;
+            animation: walleArmOffer 8s infinite ease-in-out;
+        }
+
+        /* --- LA FLOR: AHORA CON Z-INDEX MÁXIMO PARA IR POR DELANTE --- */
+        .gift-flower {
+            position: absolute;
+            top: 80px;
+            left: 70px;
+            z-index: 20; /* Súper alto para estar frente a todo WALL-E */
+            opacity: 0;
+            transform: scale(0);
+            animation: flowerPop 8s infinite ease-in-out;
+            pointer-events: none;
+        }
+        .gift-flower .stem {
+            width: 6px;
+            height: 36px;
+            background: #00e676;
+            border-radius: 3px;
+            position: relative;
+            border: 2px solid #000;
+        }
+        .gift-flower .leaf {
+            position: absolute;
+            width: 14px;
+            height: 8px;
+            background: #00e676;
+            border-radius: 50%;
+            border: 2px solid #000;
+        }
+        .gift-flower .leaf.l { left: -14px; top: 12px; transform: rotate(-30deg); }
+        .gift-flower .leaf.r { right: -14px; top: 18px; transform: rotate(30deg); }
+        
+        .gift-flower .petal-bloom {
+            position: absolute;
+            top: -16px;
+            left: -11px;
+            width: 24px;
+            height: 24px;
+            background: #ff5252;
+            border-radius: 50%;
+            border: 3px solid #000;
+            box-shadow: 0 0 10px rgba(255,82,82,0.5);
+        }
+        .gift-flower .petal-bloom::before {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #ffeb3b;
+            border-radius: 50%;
+            top: 8px;
+            left: 8px;
+        }
+
+        /* Corazones flotantes */
+        .love-hearts {
+            position: absolute;
+            top: -50px;
+            left: 65px;
+            opacity: 0;
+            z-index: 25;
+            animation: heartsFlyUp 8s infinite ease-in-out;
+        }
+        .love-hearts .heart-icon {
+            font-size: 28px;
+            color: #ff1744;
+            position: absolute;
+        }
+
+        /* ===================================================
+           EVE BEBÉ
+           =================================================== */
+        .eve-anchor {
+            position: relative;
+            animation: eveFlightStory 8s infinite ease-in-out;
+        }
+
+        .eve-chibi {
+            position: relative;
+            width: 160px;
+            height: 200px;
+        }
+
+        .eve-chibi .capsule-head {
+            width: 124px;
+            height: 104px;
+            background: #ffffff;
+            border-radius: 50% 50% 45% 45%;
+            position: absolute;
+            top: 0;
+            left: 18px;
+            z-index: 5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: inset -5px -5px 0 rgba(0,0,0,0.05);
+        }
+
+        .eve-chibi .black-visor {
+            width: 96px;
+            height: 74px;
+            background: #000000;
+            border-radius: 50% 50% 42% 42%;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+
+        .eve-chibi .cyan-eye {
+            width: 26px;
+            height: 20px;
+            background: #00b0ff;
+            border-radius: 50%;
+            box-shadow: 0 0 14px #00b0ff;
+            animation: eveEyesExpression 8s infinite ease-in-out;
+        }
+
+        .eve-chibi .oval-blush {
+            position: absolute;
+            width: 16px;
+            height: 10px;
+            background: #ff3d00;
+            border-radius: 50%;
+            opacity: 0;
+            bottom: 15px;
+            animation: eveBlushExpression 8s infinite ease-in-out;
+        }
+        .eve-chibi .oval-blush.left { left: 8px; }
+        .eve-chibi .oval-blush.right { right: 8px; }
+
+        .eve-chibi .body-capsule {
+            width: 100px;
+            height: 100px;
+            background: #ffffff;
+            border-radius: 50% 50% 48% 48% / 40% 40% 60% 60%;
+            position: absolute;
+            top: 94px;
+            left: 30px;
+            z-index: 4;
+            box-shadow: inset -6px -6px 0 rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: center;
+        }
+
+        .eve-chibi .chest-heart {
+            position: absolute;
+            top: 32px;
+            font-size: 20px;
+            color: #ff1744;
+        }
+
+        .eve-chibi .floating-arm {
+            width: 22px;
+            height: 64px;
+            background: #ffffff;
+            border-radius: 50%;
+            position: absolute;
+            top: 105px;
+            z-index: 6;
+        }
+        .eve-chibi .floating-arm.left {
+            left: 2px;
+            transform: rotate(20deg);
+        }
+        .eve-chibi .floating-arm.right {
+            right: 2px;
+            transform: rotate(-20deg);
+            transform-origin: top center;
+            animation: eveArmPatting 8s infinite ease-in-out;
+        }
+
+        /* ===================================================
+           LÍNEAS DE TIEMPO ANIMADAS (PRECIOSAS)
+           =================================================== */
+        @keyframes chestOpen {
+            0%, 15%, 85%, 100% { transform: rotateX(0deg); }
+            25%, 75% { transform: rotateX(-55deg); }
+        }
+
+        /* Trayectoria de la flor saliendo al frente */
+        @keyframes flowerPop {
+            0%, 20%, 80%, 100% { opacity: 0; transform: scale(0); }
+            30%, 70% { opacity: 1; transform: scale(1.4) translateY(-54px) translateX(30px); }
+        }
+
+        @keyframes walleBlushGlow {
+            0%, 25%, 75%, 100% { opacity: 0; }
+            35%, 65% { opacity: 0.9; }
+        }
+
+        /* ¡NUEVO! Las pupilas se ensachan (crecen un 25%) por el sonrojo y la emoción */
+        @keyframes pupilExpand {
+            0%, 28%, 72%, 100% { transform: scale(1); }
+            38%, 62% { transform: scale(1.25); } /* Se le abren los ojos de amor */
+        }
+
+        @keyframes walleShyHead {
+            0%, 30%, 70%, 100% { transform: rotate(0deg) translateY(0); }
+            40%, 60% { transform: rotate(-6deg) translateY(3px); } 
+        }
+
+        @keyframes walleArmOffer {
+            0%, 20%, 80%, 100% { transform: rotate(-15deg); }
+            30%, 70% { transform: rotate(-60deg) translateX(5px); }
+        }
+
+        @keyframes eveFlightStory {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            20% { transform: translate(-30px, -10px) rotate(-4deg); }
+            35%, 52% { transform: translate(-115px, -15px) rotate(-18deg); } 
+            62%, 78% { transform: translate(-15px, -45px) rotate(10deg); } 
+        }
+
+        @keyframes eveArmPatting {
+            0%, 20%, 75%, 100% { transform: rotate(-20deg); }
+            33%, 39%, 45%, 51% { transform: rotate(-120deg) translateY(-4px); }
+            36%, 42%, 48% { transform: rotate(-100deg) translateY(-4px); } 
+        }
+
+        @keyframes eveEyesExpression {
+            0%, 20%, 75%, 100% { height: 20px; border-radius: 50%; transform: translateY(0); }
+            25% { height: 24px; border-radius: 50%; }
+            33%, 55% { height: 14px; border-radius: 50% 50% 0 0; transform: translateY(-3px); }
+            62%, 72% { height: 14px; border-radius: 0 0 50% 50%; transform: translateY(3px); }
+        }
+
+        @keyframes eveBlushExpression {
+            0%, 25%, 75%, 100% { opacity: 0; }
+            33%, 72% { opacity: 1; }
+        }
+
+        @keyframes heartsFlyUp {
+            0%, 35%, 70%, 100% { opacity: 0; transform: translateY(0) scale(0.5); }
+            45%, 65% { opacity: 1; transform: translateY(-50px) scale(1.2); }
+        }
+    </style>
+</head>
+<body>
+<audio id="musica" autoplay loop>
+    <source src="./Perfume de Gardenia.mp3" type="audio/mpeg">
+</audio>
+
+    <div class="space-container">
+        <div class="cosmic-stars"></div>
+
+        <div class="stage">
+            
+            
+            <div class="walle-anchor">
+                <div class="love-hearts">
+                    <span class="heart-icon" style="left: -25px; animation-delay: 0.1s;">❤️</span>
+                    <span class="heart-icon" style="left: 25px; top: -12px;">❤️</span>
+                </div>
+
+                <div class="gift-flower">
+                    <div class="text-layer">
+                        <div class="stem">
+                            <div class="leaf l"></div>
+                            <div class="leaf r"></div>
+                            <div class="petal-bloom"></div>
+
+                            
+                        </div>
+                    </div>
+                </div>
+
+                <div class="walle-chibi">
+                    <div class="blush-effect l"></div>
+                    <div class="blush-effect r"></div>
+                    
+                    <div class="binocular-head">
+                        <div class="eye-lens left cartoon-outline">
+                            <div class="white-bg">
+                                <div class="giant-pupil"></div>
+                            </div>
+                        </div>
+                        <div class="eye-lens right cartoon-outline">
+                            <div class="white-bg">
+                                <div class="giant-pupil"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="neck-joint cartoon-outline"></div>
+                    <div class="arm-lever left cartoon-outline"></div>
+                    
+                    <div class="body-cube cartoon-outline">
+                        <div class="chest-gate cartoon-outline"></div>
+                    </div>
+                    
+                    <div class="arm-lever right cartoon-outline"></div>
+                    
+                    <div class="caterpillar-tracks">
+                        <div class="track-wheel cartoon-outline"></div>
+                        <div class="track-wheel cartoon-outline"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="eve-anchor">
+                <div class="eve-chibi">
+                    <div class="capsule-head cartoon-outline">
+                        <div class="black-visor">
+                            <div class="oval-blush left"></div>
+                            <div class="cyan-eye"></div>
+                            <div class="cyan-eye"></div>
+                            <div class="oval-blush right"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="floating-arm left cartoon-outline"></div>
+                    
+                    <div class="body-capsule cartoon-outline">
+                        <div class="chest-heart">❤️</div>
+                    </div>
+                    
+                    <div class="floating-arm right cartoon-outline"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+<div style="text-align: center; background: rgba(255, 255, 255, 0.05); padding: 40px; border-radius: 20px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
+        
+              <div style="max-width: 600px; line-height: 1.8; font-style: italic; font-size: 1.2rem; color: #e0e0e0;">
+            <p style="margin: 5px 0;">"Tu presencia es la luz que guía mis días, eres hermosa en cada detalle de tu ser."</p>
+            <p style="margin: 5px 0;">"Con honestidad, respeto y esfuerzo, construiremos nuestro camino, confiando siempre en los planes de Dios."</p>
+            <p style="margin: 5px 0; font-weight: bold; color: #ffb7c5;">"A tu lado, todo es posible; saldremos adelante porque nuestra unión es nuestro mayor tesoro."</p>
+        </div>
+<br>
+        <button id="btn-iniciar" style="padding: 15px 30px; font-size: 1.2rem; cursor: pointer; color: #e0e0e0; background: #860546; border: none; border-radius: 50px; color: white; font-weight: bold; box-shadow: 0 5px 15px rgba(255,105,180,0.4); transition: transform 0.2s;">
+        <a href="./Mensajes .html">REGRESAR</a>
+    </button>
+    </div>
+    <style>
+        @keyframes flotar {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+    
+    </style>
+
+    <script>
+
+window.addEventListener("load", () => {
+
+    const musica = document.getElementById("musica");
+
+    musica.volume = 0.7;
+
+    const playPromise = musica.play();
+
+    if (playPromise !== undefined) {
+
+        playPromise.catch(() => {
+
+            document.body.addEventListener("click", () => {
+
+                musica.play();
+
+            }, { once: true });
+
+        });
+
+    }
+
+});
+
+</script>
+
+</body>
+</html>

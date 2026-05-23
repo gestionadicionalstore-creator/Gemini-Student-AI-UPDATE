@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reflexión y Conexión Nodo 1</title>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+    
+    body {
+        background: #040408;
+        color: white;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        position: relative;
+    }
+
+    canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+    }
+
+    .interface-panel {
+        position: relative;
+        z-index: 2;
+        max-width: 600px;
+        width: 90%;
+        background: rgba(10, 8, 20, 0.7);
+        border: 1px solid rgba(162, 145, 255, 0.2);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: 30px;
+        padding: 35px;
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 40px rgba(122, 92, 255, 0.1);
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 25px;
+        animation: panelEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .panel-header-tag {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        color: #00ffcc;
+        text-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
+        font-weight: bold;
+    }
+
+    .message-container {
+        min-height: 90px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .typed-text {
+        font-size: 20px;
+        font-weight: 600;
+        line-height: 1.5;
+        color: #e5dbff;
+    }
+
+    .highlight-pink {
+        color: #ff007f;
+        text-shadow: 0 0 15px rgba(255, 0, 127, 0.6);
+    }
+    
+    .highlight-cyan {
+        color: #00ffcc;
+        text-shadow: 0 0 15px rgba(0, 255, 204, 0.6);
+    }
+
+    .action-btn {
+        background: linear-gradient(135deg, #7a5cff, #ff007f);
+        color: white;
+        border: none;
+        padding: 14px 30px;
+        border-radius: 15px;
+        cursor: pointer;
+        font-size: 15px;
+        font-weight: bold;
+        letter-spacing: 1px;
+        box-shadow: 0 0 20px rgba(122, 92, 255, 0.4);
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .action-btn:hover {
+        transform: scale(1.05) translateY(-2px);
+        box-shadow: 0 0 30px rgba(255, 0, 127, 0.6);
+    }
+
+    /* VENTANA MODAL INTERNA (REFLEXIÓN) */
+    .modal-overlay {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(3, 2, 10, 0.85);
+        backdrop-filter: blur(10px);
+        z-index: 10;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.4s ease;
+    }
+
+    .modal-overlay.active {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .reflection-card {
+        background: #110f22;
+        border: 1px solid rgba(255, 0, 127, 0.3);
+        padding: 35px;
+        border-radius: 24px;
+        max-width: 480px;
+        width: 85%;
+        text-align: center;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 30px rgba(122, 92, 255, 0.15);
+        transform: scale(0.85);
+        transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .modal-overlay.active .reflection-card {
+        transform: scale(1);
+    }
+
+    .reflection-title {
+        color: #ff007f;
+        font-size: 22px;
+        margin-bottom: 15px;
+        text-shadow: 0 0 10px rgba(255, 0, 127, 0.4);
+    }
+
+    .reflection-text {
+        font-size: 15px;
+        color: #ccc;
+        line-height: 1.6;
+        text-align: left;
+        margin-bottom: 25px;
+    }
+
+    .close-modal-btn {
+        background: #221c38;
+        color: #a291ff;
+        border: 1px solid #443583;
+        padding: 10px 22px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 13px;
+        transition: all 0.2s;
+    }
+    .close-modal-btn:hover {
+        background: #7a5cff;
+        color: white;
+    }
+
+    .return-link {
+        color: #666;
+        text-decoration: none;
+        font-size: 12px;
+        letter-spacing: 1px;
+        transition: color 0.2s;
+    }
+    .return-link:hover { color: #a291ff; }
+
+    @keyframes panelEntrance {
+        from { opacity: 0; transform: scale(0.95) translateY(15px); }
+        to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+</style>
+</head>
+<body>
+
+<canvas id="cyberCanvas"></canvas>
+
+<div class="interface-panel">
+    <div class="panel-header-tag">Archivo de Datos Especiales</div>
+    
+    <div class="message-container">
+        <span class="typed-text" id="outputMessage"></span>
+    </div>
+
+    <button class="action-btn" onclick="openReflection()">Aplastame Aquí</button>
+    <a href="./Mensajes .html" class="return-link">➔ VOLVER AL MENSAJERO</a>
+</div>
+
+<div class="modal-overlay" id="modalReflexion">
+    <div class="reflection-card">
+        <div class="reflection-title">Para Alguien Muy Importante</div>
+        <div class="reflection-text">
+            Quiero tomarme este espacio para decirte que eres alguien sumamente fundamental en mi vida. A veces las palabras se quedan cortas, pero mi verdadera intención contigo es hacer las cosas bien, construir algo real y cuidar cada detalle a tu lado.<br><br>
+            Me importas mucho, y precisamente por eso quiero dar lo mejor de mí, avanzar con pasos firmes y demostrarte que mi lugar favorito es estando cerca de ti. Gracias por ser esa persona única que alegra todo mi sistema.
+        </div>
+        <button class="close-modal-btn" onclick="closeReflection()">Entendido ➔</button>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('cyberCanvas');
+    const ctx = canvas.getContext('2d');
+
+    let width, height;
+    let roses = [];
+    let heartParticles = [];
+    let fireworks = [];
+    let ambientParticles = [];
+
+    const colorsPalette = ['#ff0044', '#ff007f', '#00ffcc', '#e5dbff', '#ffb300', '#9d00ff'];
+
+    function resize() {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    // --- JARDÍN DE ROSAS DE DIFERENTES COLORES ---
+    function initRoseGarden() {
+        roses = [];
+        const roseCount = 22; // Multiplicado para crear un verdadero jardín tupido
+        for(let i = 0; i < roseCount; i++) {
+            roses.push({
+                x: (width / (roseCount + 1)) * (i + 1) + (Math.random() - 0.5) * 25,
+                y: height - Math.random() * 70 - 30,
+                size: Math.random() * 12 + 10,
+                color: colorsPalette[Math.floor(Math.random() * colorsPalette.length)],
+                rotSpeed: (Math.random() - 0.5) * 0.01,
+                angle: Math.random() * Math.PI
+            });
+        }
+    }
+
+    // --- FORMULA PARAMÉTRICA DEL CORAZÓN ---
+    function getHeartPoint(t) {
+        return {
+            x: 16 * Math.pow(Math.sin(t), 3),
+            y: -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t))
+        };
+    }
+
+    function initHeartData() {
+        heartParticles = [];
+        for (let i = 0; i < Math.PI * 2; i += 0.06) {
+            let p = getHeartPoint(i);
+            heartParticles.push({ tx: p.x, ty: p.y, color: Math.random() > 0.4 ? '#ff0055' : '#7a5cff' });
+        }
+    }
+
+    // --- VEHÍCULO ROBÓTICO (TORTUGA) Y COMPORTAMIENTO ---
+    let turtle = {
+        x: -50, // Comienza fuera de la pantalla
+        y: 200,
+        targetX: 180,
+        targetY: 250,
+        pulse: 0,
+        hasDroppedHeart: false,
+        heartAlpha: 1
+    };
+
+    // --- GESTIÓN DE FUEGOS ARTIFICIALES ---
+    function launchFirework() {
+        if (fireworks.length < 5 && Math.random() > 0.95) {
+            fireworks.push({
+                x: Math.random() * width,
+                y: height,
+                targetY: Math.random() * (height * 0.4) + 100,
+                speed: Math.random() * 4 + 4,
+                exploded: false,
+                particles: [],
+                color: colorsPalette[Math.floor(Math.random() * colorsPalette.length)]
+            });
+        }
+    }
+
+    function initAmbient() {
+        ambientParticles = [];
+        for(let i=0; i<40; i++) {
+            ambientParticles.push({
+                x: Math.random() * width, y: Math.random() * height,
+                size: Math.random() * 2, alpha: Math.random() * 0.5 + 0.2, speedY: Math.random() * 0.5 + 0.2
+            });
+        }
+    }
+
+    // --- RENDERIZADO GENERAL DEL SISTEMA ---
+    function drawLoop() {
+        ctx.fillStyle = 'rgba(4, 4, 8, 0.25)'; // Persistencia para estelas luminosas
+        ctx.fillRect(0, 0, width, height);
+
+        // 1. Polvo estelar de fondo
+        ambientParticles.forEach(p => {
+            p.y -= p.speedY;
+            if(p.y < 0) p.y = height;
+            ctx.fillStyle = `rgba(255, 255, 255, ${p.alpha})`;
+            ctx.fillRect(p.x, p.y, p.size, p.size);
+        });
+
+        // 2. IA de la Tortuga (Lleva el corazón y luego lo deja)
+        turtle.pulse += 0.03;
+        turtle.x += (turtle.targetX - turtle.x) * 0.02;
+        turtle.y += (turtle.targetY - turtle.y) * 0.02 + Math.sin(turtle.pulse) * 0.2;
+
+        // Si la tortuga llega a su punto intermedio, "libera" el corazón en su lugar fijo
+        if(Math.abs(turtle.x - turtle.targetX) < 10 && !turtle.hasDroppedHeart) {
+            setTimeout(() => {
+                turtle.hasDroppedHeart = true;
+                // La tortuga se retira lentamente hacia la izquierda del lienzo
+                turtle.targetX = -100;
+                turtle.targetY = height / 2;
+            }, 3000);
+        }
+
+        // 3. Dibujar el Corazón Geométrico
+        ctx.save();
+        // Si no se ha soltado, el corazón sigue a la tortuga. Si ya se soltó, se queda estático en la coordenada izquierda limpia.
+        let heartX = turtle.hasDroppedHeart ? (width * 0.18) : (turtle.x + 40);
+        let heartY = turtle.hasDroppedHeart ? (height * 0.45) : (turtle.y - 40);
+        ctx.translate(heartX, heartY);
+        ctx.shadowBlur = 20;
+        
+        let hScale = 5.5 + Math.sin(Date.now() * 0.004) * 0.3;
+        heartParticles.forEach((p, idx) => {
+            ctx.shadowColor = p.color;
+            ctx.fillStyle = p.color;
+            let x = p.tx * hScale * (1 + Math.sin(turtle.pulse + idx)*0.02);
+            let y = p.ty * hScale * (1 + Math.sin(turtle.pulse + idx)*0.02);
+            ctx.fillRect(x, y, 2.5, 2.5);
+        });
+        ctx.restore();
+
+        // 4. Dibujar la Tortuga Ciberpunk (Solo si sigue en rango visible)
+        if (turtle.x > -60) {
+            ctx.save();
+            ctx.translate(turtle.x, turtle.y);
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = '#00ffcc';
+            ctx.strokeStyle = '#00ffcc';
+            ctx.lineWidth = 1.5;
+
+            // Caparazón fractal hexagonal
+            ctx.beginPath();
+            for(let i=0; i<6; i++) {
+                let a = (Math.PI / 3) * i;
+                ctx.lineTo(25 * Math.cos(a), 18 * Math.sin(a));
+            }
+            ctx.closePath(); ctx.stroke();
+
+            // Extremidades propulsoras neón
+            ctx.fillStyle = '#00ffcc';
+            ctx.beginPath();
+            ctx.arc(32, 0, 5, 0, Math.PI*2); // Cabeza
+            ctx.arc(-10, -18, 4, 0, Math.PI*2); // Aletas frontales
+            ctx.arc(10, -18, 4, 0, Math.PI*2);
+            ctx.arc(-10, 18, 4, 0, Math.PI*2);  // Aletas traseras
+            ctx.arc(10, 18, 4, 0, Math.PI*2);
+            ctx.fill();
+            ctx.restore();
+        }
+
+        // 5. Motor de Fuegos Artificiales
+        launchFirework();
+        fireworks.forEach((fw, fIdx) => {
+            if(!fw.exploded) {
+                fw.y -= fw.speed;
+                ctx.fillStyle = fw.color;
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = fw.color;
+                ctx.fillRect(fw.x, fw.y, 3, 3);
+
+                if(fw.y <= fw.targetY) {
+                    fw.exploded = true;
+                    // Generar explosión de partículas vectoriales
+                    for(let i=0; i<35; i++) {
+                        let angle = Math.random() * Math.PI * 2;
+                        let speed = Math.random() * 3 + 1;
+                        fw.particles.push({
+                            x: fw.x, y: fw.y,
+                            vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
+                            alpha: 1, decay: Math.random() * 0.02 + 0.015
+                        });
+                    }
+                }
+            } else {
+                fw.particles.forEach((p, pIdx) => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.alpha -= p.decay;
+                    ctx.fillStyle = fw.color;
+                    ctx.globalAlpha = p.alpha;
+                    ctx.fillRect(p.x, p.y, 2, 2);
+                    ctx.globalAlpha = 1;
+
+                    if(p.alpha <= 0) fw.particles.splice(pIdx, 1);
+                });
+                if(fw.particles.length === 0) fireworks.splice(fIdx, 1);
+            }
+        });
+
+        // 6. Renderizar el Gran Jardín de Rosas de Colores
+        roses.forEach(r => {
+            r.angle += r.rotSpeed;
+            ctx.save();
+            ctx.translate(r.x, r.y);
+            ctx.shadowBlur = 12;
+            ctx.shadowColor = r.color;
+            ctx.strokeStyle = r.color;
+
+            // Dibujar tallos abstractos violetas hacia el suelo
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.quadraticCurveTo(-5, 20, -2, height - r.y);
+            ctx.strokeStyle = 'rgba(122, 92, 255, 0.25)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            // Dibujar pétalos concéntricos simulando una Rosa Geométrica
+            ctx.lineWidth = 1.2;
+            ctx.strokeStyle = r.color;
+            for(let layer = 1; layer <= 3; layer++) {
+                let radius = (r.size / layer) * 1.2;
+                ctx.beginPath();
+                for(let j=0; j<5; j++) {
+                    let a = (Math.PI * 2 / 5) * j + r.angle * layer;
+                    let ox = radius * Math.cos(a);
+                    let oy = radius * Math.sin(a);
+                    if(j===0) ctx.moveTo(ox, oy); else ctx.lineTo(ox, oy);
+                }
+                ctx.closePath(); ctx.stroke();
+            }
+            ctx.restore();
+        });
+
+        requestAnimationFrame(drawLoop);
+    }
+
+    // Inicializar entornos
+    initRoseGarden();
+    initHeartData();
+    initAmbient();
+    drawLoop();
+
+    // --- EFECTO MÁQUINA DE ESCRIBIR INTEGRADO ---
+    const outputMessage = document.getElementById('outputMessage');
+    const textFragments = [
+        "Eres ", "<span class='highlight-cyan'>muy especial</span>",
+        " y eres la chica que ", "<span class='highlight-pink'>tanto quiero a mi lado</span>",
+        " por eso me encantas."
+    ];
+
+    let frag = 0, char = 0, compiledHTML = "";
+    function typeTextEngine() {
+        if (frag < textFragments.length) {
+            const current = textFragments[frag];
+            if (current.startsWith("<span")) {
+                compiledHTML += current;
+                outputMessage.innerHTML = compiledHTML;
+                frag++;
+                setTimeout(typeTextEngine, 400);
+            } else {
+                compiledHTML += current.charAt(char);
+                outputMessage.innerHTML = compiledHTML;
+                char++;
+                if (char < current.length) {
+                    setTimeout(typeTextEngine, 50);
+                } else {
+                    char = 0; frag++;
+                    setTimeout(typeTextEngine, 200);
+                }
+            }
+        }
+    }
+    setTimeout(typeTextEngine, 800);
+
+    // --- CONTROLADORES DE MODAL INTERACTIVO ---
+    const modal = document.getElementById('modalReflexion');
+    function openReflection() { modal.classList.add('active'); }
+    function closeReflection() { modal.classList.remove('active'); }
+</script>
+</body>
+</html>

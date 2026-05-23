@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Repositorio Remoto - En Listado</title>
+
+<style>
+
+/* =========================================================
+   RESET GENERAL
+========================================================= */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI',Arial,sans-serif;
+}
+
+body{
+    background:#06040d;
+    background-image:
+        radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 30px),
+        radial-gradient(circle at 50% 10%, rgba(122,92,255,.15), transparent 60%);
+    background-size:350px 350px,100% 100%;
+    color:white;
+    min-height:100vh;
+    padding:40px 20px;
+    display:flex;
+    justify-content:center;
+}
+
+/* =========================================================
+   CONTENEDOR
+========================================================= */
+
+.repo-container{
+    max-width:750px;
+    width:100%;
+    background:rgba(20,16,36,.7);
+    backdrop-filter:blur(12px);
+    border:2px solid rgba(0,255,204,.3);
+    box-shadow:0 0 40px rgba(0,255,204,.1);
+    border-radius:25px;
+    padding:30px;
+    height:fit-content;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.repo-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    border-bottom:1px solid rgba(255,255,255,.1);
+    padding-bottom:20px;
+    margin-bottom:20px;
+    gap:10px;
+}
+
+.repo-title{
+    font-size:24px;
+    font-weight:bold;
+    color:#00ffcc;
+    text-shadow:0 0 15px rgba(0,255,204,.4);
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.header-actions{
+    display:flex;
+    gap:10px;
+    align-items:center;
+}
+
+/* =========================================================
+   BOTONES
+========================================================= */
+
+.back-btn{
+    background:rgba(122,92,255,.2);
+    border:1px solid #7a5cff;
+    color:white;
+    padding:8px 16px;
+    border-radius:12px;
+    cursor:pointer;
+    text-decoration:none;
+    font-size:14px;
+    transition:.2s;
+}
+
+.back-btn:hover{
+    background:#7a5cff;
+    box-shadow:0 0 10px #7a5cff;
+}
+
+.clear-all-btn{
+    background:rgba(255,0,85,.1);
+    border:1px solid #ff0055;
+    color:#ff0055;
+    padding:8px 14px;
+    border-radius:12px;
+    cursor:pointer;
+    font-size:13px;
+    font-weight:bold;
+    transition:.2s;
+}
+
+.clear-all-btn:hover{
+    background:#ff0055;
+    color:white;
+    box-shadow:0 0 15px rgba(255,0,85,.4);
+}
+
+/* =========================================================
+   TABS
+========================================================= */
+
+.tabs-container{
+    display:flex;
+    gap:10px;
+    margin-bottom:20px;
+    background:rgba(0,0,0,.2);
+    padding:6px;
+    border-radius:14px;
+    border:1px solid rgba(255,255,255,.05);
+    position:relative;
+    flex-wrap:wrap;
+}
+
+.tab-btn{
+    flex:1;
+    background:transparent;
+    border:none;
+    color:#aaa;
+    padding:10px;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:14px;
+    font-weight:600;
+    transition:all .2s ease;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+}
+
+.tab-btn:hover{
+    color:white;
+    background:rgba(255,255,255,.05);
+}
+
+.tab-btn.active{
+    background:#7a5cff;
+    color:white;
+    box-shadow:0 0 10px rgba(122,92,255,.4);
+}
+
+/* =========================================================
+   DROPDOWN
+========================================================= */
+
+.time-selector-container{
+    position:relative;
+    flex:1;
+    display:flex;
+}
+
+.time-dropdown{
+    position:absolute;
+    top:110%;
+    left:0;
+    width:100%;
+    background:#141024;
+    border:1px solid #7a5cff;
+    box-shadow:0 10px 25px rgba(0,0,0,.5);
+    border-radius:10px;
+    display:none;
+    flex-direction:column;
+    overflow:hidden;
+    z-index:100;
+}
+
+.time-dropdown button{
+    background:transparent;
+    border:none;
+    color:#eee;
+    padding:10px;
+    text-align:center;
+    cursor:pointer;
+    font-size:13px;
+    font-weight:500;
+    transition:.2s;
+}
+
+.time-dropdown button:hover{
+    background:#7a5cff;
+    color:white;
+}
+
+/* =========================================================
+   PANEL INFO
+========================================================= */
+
+.info-box{
+    background:rgba(20,16,36,.8);
+    border:1px solid #7a5cff;
+    border-radius:20px;
+    padding:25px;
+    max-width:500px;
+    color:#fff;
+    font-family:'Courier New', monospace;
+    box-shadow:0 0 20px rgba(122,92,255,.2);
+}
+
+.info-box h3{
+    color:#00ffcc;
+    margin-bottom:15px;
+}
+
+.info-box ul{
+    list-style:none;
+    padding:0;
+}
+
+.info-box li{
+    margin-bottom:10px;
+    border-bottom:1px solid #333;
+    padding-bottom:5px;
+}
+
+.info-link{
+    color:#a291ff;
+    text-decoration:none;
+    font-weight:bold;
+    border:1px solid #a291ff;
+    padding:8px 15px;
+    border-radius:5px;
+    display:inline-block;
+}
+
+/* =========================================================
+   LISTA LOGS
+========================================================= */
+
+.log-list{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    max-height:500px;
+    overflow-y:auto;
+    padding-right:5px;
+}
+
+.log-list::-webkit-scrollbar{
+    width:6px;
+}
+
+.log-list::-webkit-scrollbar-thumb{
+    background:#7a5cff;
+    border-radius:10px;
+}
+
+/* =========================================================
+   ITEM LOG
+========================================================= */
+
+.log-item{
+    background:rgba(255,255,255,.03);
+    border:1px solid rgba(122,92,255,.15);
+    border-left:5px solid #7a5cff;
+    border-radius:14px;
+    padding:16px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    animation:slideIn .3s ease;
+    gap:15px;
+}
+
+.log-item.ai-generated{
+    border-left-color:#00ffcc;
+    background:rgba(0,255,204,.02);
+}
+
+.log-content{
+    flex:1;
+}
+
+.log-user{
+    font-size:11px;
+    color:#a291ff;
+    text-transform:uppercase;
+    letter-spacing:.5px;
+    margin-bottom:4px;
+    font-weight:bold;
+}
+
+.log-text{
+    font-size:14px;
+    color:#eee;
+    line-height:1.4;
+    word-break:break-word;
+}
+
+/* =========================================================
+   CONTROLES
+========================================================= */
+
+.right-controls{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.log-timer{
+    font-size:12px;
+    color:#00ffcc;
+    background:rgba(0,255,204,.1);
+    padding:6px 12px;
+    border-radius:20px;
+    white-space:nowrap;
+    border:1px solid rgba(0,255,204,.2);
+    animation:pulse 1s infinite;
+}
+
+.log-timer.fixed-badge{
+    color:#a291ff;
+    background:rgba(122,92,255,.1);
+    border:1px solid rgba(122,92,255,.3);
+    animation:none;
+}
+
+.delete-btn{
+    background:transparent;
+    border:none;
+    color:rgba(255,255,255,.3);
+    cursor:pointer;
+    font-size:16px;
+    padding:4px;
+    border-radius:6px;
+    transition:all .2s ease;
+}
+
+.delete-btn:hover{
+    color:#ff0055;
+    background:rgba(255,0,85,.1);
+    transform:scale(1.1);
+}
+
+/* =========================================================
+   EMPTY
+========================================================= */
+
+.empty-state{
+    text-align:center;
+    padding:40px 0;
+    color:#666;
+    font-style:italic;
+    font-size:15px;
+}
+
+/* =========================================================
+   ANIMACIONES
+========================================================= */
+
+@keyframes slideIn{
+    from{
+        opacity:0;
+        transform:translateY(5px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+@keyframes pulse{
+    0%{
+        box-shadow:0 0 0 rgba(0,255,204,.0);
+    }
+
+    50%{
+        box-shadow:0 0 12px rgba(0,255,204,.4);
+    }
+
+    100%{
+        box-shadow:0 0 0 rgba(0,255,204,.0);
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="repo-container">
+
+    <!-- HEADER -->
+    <div class="repo-header">
+
+        <div class="repo-title">
+            📁 Repositorio: En listado
+        </div>
+
+        <div class="header-actions">
+
+            <button class="clear-all-btn" onclick="borrarTodoElHistorial()">
+                🗑️ Limpiar Todo
+            </button>
+
+            <a href="./Mensajes .html" class="back-btn">
+                ← Volver
+            </a>
+
+        </div>
+
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs-container">
+
+        <div class="time-selector-container">
+
+            <button class="tab-btn active" id="tabAll" onclick="toggleTimeDropdown()">
+
+                ⏱️ PREGUNTAS ALEATORIAS POR IA
+                <span id="labelHoras"></span>
+
+            </button>
+
+            <div class="time-dropdown" id="timeDropdown">
+
+                <button onclick="seleccionarTiempoHistorial('10m')">
+                    ⏱️ Últimos 10
+                </button>
+
+                <button onclick="seleccionarTiempoHistorial('1h')">
+                    ⏱️ Última 1 Hora
+                </button>
+
+                <button onclick="seleccionarTiempoHistorial('12h')">
+                    ⏱️ Últimas 12 Horas
+                </button>
+
+                <button onclick="seleccionarTiempoHistorial('24h')">
+                    ⏱️ Últimas 24 Horas
+                </button>
+
+            </div>
+
+        </div>
+
+        <button class="tab-btn" id="tabLast10" onclick="cambiarFiltro('ultimos10')">
+            📌 Últimas Preguntas alrededor del mundo
+        </button>
+
+        <!-- PANEL -->
+        <div class="info-box">
+
+            <h3>🔍 Dudas sobre el mundo:</h3>
+
+            <ul>
+
+                <li>
+                    > ¿Cómo la IA está transformando la exploración espacial?
+                </li>
+
+                <li>
+                    > ¿Cuál es el impacto real de la tecnología en la evolución humana?
+                </li>
+
+            </ul>
+
+            <a
+                href="https://www.google.com/search?q=cuestiones+sobre+el+mundo+tecnologia+ia"
+                target="_blank"
+                class="info-link">
+
+                EXPLORAR CUESTIONES →
+
+            </a>
+
+        </div>
+
+    </div>
+
+    <!-- LOGS -->
+    <div class="log-list" id="logList"></div>
+
+</div>
+
+<script>
+
+/* =========================================================
+   VARIABLES
+========================================================= */
+
+let filtroActual = 'todos';
+
+let rangoTiempoHistorial = '10m';
+
+const STORAGE_KEY = "java_html_logs";
+
+/* SOLO VISIBLES 15 MIN */
+const LIMITE_VISIBLE = 15 * 60 * 1000;
+
+/* =========================================================
+   DROPDOWN
+========================================================= */
+
+function toggleTimeDropdown(){
+
+    if(filtroActual !== 'todos'){
+        cambiarFiltro('todos');
+    }
+
+    const dropdown = document.getElementById("timeDropdown");
+
+    dropdown.style.display =
+        dropdown.style.display === "flex"
+        ? "none"
+        : "flex";
+}
+
+/* =========================================================
+   TIEMPO HISTORIAL
+========================================================= */
+
+function seleccionarTiempoHistorial(rango){
+
+    rangoTiempoHistorial = rango;
+
+    let textoBoton = "10 min";
+
+    if(rango === '1h') textoBoton = "1 hora";
+    if(rango === '12h') textoBoton = "12 horas";
+    if(rango === '24h') textoBoton = "24 horas";
+
+    document.getElementById("labelHoras").innerText = textoBoton;
+
+    document.getElementById("timeDropdown").style.display = "none";
+
+    cargarRepositorio();
+}
+
+/* =========================================================
+   CAMBIAR FILTRO
+========================================================= */
+
+function cambiarFiltro(nuevoFiltro){
+
+    filtroActual = nuevoFiltro;
+
+    document.getElementById("tabAll")
+        .classList.toggle("active", filtroActual === 'todos');
+
+    document.getElementById("tabLast10")
+        .classList.toggle("active", filtroActual === 'ultimos10');
+
+    if(filtroActual !== 'todos'){
+        document.getElementById("timeDropdown").style.display = "none";
+    }
+
+    cargarRepositorio();
+}
+
+/* =========================================================
+   CERRAR DROPDOWN
+========================================================= */
+
+window.onclick = function(event){
+
+    if(
+        !event.target.matches('#tabAll')
+        &&
+        !event.target.matches('#labelHoras')
+    ){
+        document.getElementById("timeDropdown").style.display = "none";
+    }
+}
+
+/* =========================================================
+   CARGAR REPOSITORIO
+========================================================= */
+
+function cargarRepositorio(){
+
+    const logListContainer =
+        document.getElementById("logList");
+
+    let registros =
+        JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+
+    const ahora = Date.now();
+
+    /* FILTRAR EVA R */
+
+    registros = registros.filter(
+        reg => reg.usuarioCorto !== "Eva R"
+    );
+
+    /* SOLO VISIBLES 15 MIN */
+
+    const registrosRecientes = registros.filter((reg,index)=>{
+
+        const creado =
+            reg.creadoEn ||
+            reg.expiraEn ||
+            ahora;
+
+        const esDeLosUltimos10 =
+            (registros.length - index) <= 10;
+
+        const sigueVisible =
+            (ahora - creado) <= LIMITE_VISIBLE;
+
+        return sigueVisible || esDeLosUltimos10;
+    });
+
+    logListContainer.innerHTML = "";
+
+    let registrosAMostrar = [];
+
+    /* =====================================================
+       FILTRO
+    ===================================================== */
+
+    if(filtroActual === 'todos'){
+
+        let limiteMs = 10 * 60 * 1000;
+
+        if(rangoTiempoHistorial === '1h'){
+            limiteMs = 1 * 60 * 60 * 1000;
+        }
+
+        if(rangoTiempoHistorial === '12h'){
+            limiteMs = 12 * 60 * 60 * 1000;
+        }
+
+        if(rangoTiempoHistorial === '24h'){
+            limiteMs = 24 * 60 * 60 * 1000;
+        }
+
+        if(rangoTiempoHistorial === '10m'){
+
+            registrosAMostrar =
+                registrosRecientes
+                .filter(reg=>{
+
+                    const creado =
+                        reg.creadoEn ||
+                        reg.expiraEn ||
+                        ahora;
+
+                    return (ahora - creado) <= limiteMs;
+
+                })
+                .reverse();
+
+        }else{
+
+            registrosAMostrar =
+                registros
+                .filter(reg=>{
+
+                    const creado =
+                        reg.creadoEn ||
+                        reg.expiraEn ||
+                        ahora;
+
+                    return (ahora - creado) <= limiteMs;
+
+                })
+                .reverse();
+        }
+    }
+
+    /* =====================================================
+       ÚLTIMOS 10
+    ===================================================== */
+
+    else if(filtroActual === 'ultimos10'){
+
+        registrosAMostrar =
+            [...registrosRecientes]
+            .slice(-10)
+            .reverse();
+    }
+
+    /* =====================================================
+       VACÍO
+    ===================================================== */
+
+    if(registrosAMostrar.length === 0){
+
+        logListContainer.innerHTML = `
+            <div class="empty-state">
+                No hay registros disponibles actualmente.
+            </div>
+        `;
+
+        return;
+    }
+
+    /* =====================================================
+       RENDER
+    ===================================================== */
+
+    registrosAMostrar.forEach((reg,index)=>{
+
+        const item = document.createElement("div");
+
+        item.classList.add("log-item");
+
+        const usuarioCorto =
+            reg.usuarioCorto || "Desco";
+
+        if(usuarioCorto.toLowerCase().includes("gemin")){
+            item.classList.add("ai-generated");
+        }
+
+        const textoMensaje =
+            reg.texto
+            ? reg.texto
+            : "[Archivo de Sistema]";
+
+        /* =================================================
+           CUENTA REGRESIVA
+        ================================================= */
+
+        let etiquetaTiempo = "";
+
+        if(filtroActual === 'ultimos10'){
+
+            etiquetaTiempo = `
+                <span class="log-timer fixed-badge">
+                    📌 Permanente
+                </span>
+            `;
+
+        }else{
+
+            const creado =
+                reg.creadoEn ||
+                reg.expiraEn ||
+                ahora;
+
+            const tiempoRestante =
+                LIMITE_VISIBLE - (ahora - creado);
+
+            const minutos =
+                Math.floor(tiempoRestante / 60000);
+
+            const segundos =
+                Math.floor((tiempoRestante % 60000) / 1000);
+
+            if(tiempoRestante <= 0){
+
+                etiquetaTiempo = `
+                    <span class="log-timer">
+                        🧨 Expirando...
+                    </span>
+                `;
+
+            }else{
+
+                if(minutos > 0){
+
+                    etiquetaTiempo = `
+                        <span class="log-timer">
+                            🧨 Se elimina en ${minutos}m ${segundos}s
+                        </span>
+                    `;
+
+                }else{
+
+                    etiquetaTiempo = `
+                        <span class="log-timer">
+                            🧨 Se elimina en ${segundos}s
+                        </span>
+                    `;
+                }
+            }
+        }
+
+        /* =================================================
+           HTML ITEM
+        ================================================= */
+
+        item.innerHTML = `
+            <div class="log-content">
+
+                <div class="log-user">
+                    ID Ref: ${usuarioCorto}
+                </div>
+
+                <div class="log-text">
+                    ${escapeHTML(textoMensaje)}
+                </div>
+
+            </div>
+
+            <div class="right-controls">
+
+                ${etiquetaTiempo}
+
+                <button
+                    class="delete-btn"
+                    title="Borrar registro"
+                    onclick="borrarRegistroIndividual(${index})">
+
+                    🗑️
+
+                </button>
+
+            </div>
+        `;
+
+        logListContainer.appendChild(item);
+
+    });
+
+}
+
+/* =========================================================
+   BORRAR INDIVIDUAL
+========================================================= */
+
+function borrarRegistroIndividual(index){
+
+    let registros =
+        JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+
+    if(index > -1 && index < registros.length){
+
+        registros.splice(index,1);
+
+        localStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify(registros)
+        );
+
+        cargarRepositorio();
+    }
+}
+
+/* =========================================================
+   BORRAR TODO
+========================================================= */
+
+function borrarTodoElHistorial(){
+
+    if(confirm(
+        "🛸 ¿Estás seguro de limpiar todo el repositorio?"
+    )){
+
+        localStorage.removeItem(STORAGE_KEY);
+
+        cargarRepositorio();
+    }
+}
+
+/* =========================================================
+   ESCAPE HTML
+========================================================= */
+
+function escapeHTML(str){
+
+    return str.replace(/[&<>'"]/g,
+        tag => ({
+            '&':'&amp;',
+            '<':'&lt;',
+            '>':'&gt;',
+            "'":'&#39;',
+            '"':'&quot;'
+        }[tag] || tag)
+    );
+}
+
+/* =========================================================
+   INICIO
+========================================================= */
+
+cargarRepositorio();
+
+/* =========================================================
+   ACTUALIZACIÓN
+========================================================= */
+
+setInterval(()=>{
+
+    if(filtroActual === 'todos'){
+        cargarRepositorio();
+    }
+
+},1000);
+
+</script>
+
+</body>
+</html>

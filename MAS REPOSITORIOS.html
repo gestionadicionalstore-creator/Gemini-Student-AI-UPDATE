@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>NEXUS - Centro de Comando Cósmico</title>
+    <style>
+        body { margin: 0; background: linear-gradient(135deg, #06040d 0%, #1a0b2e 50%, #06040d 100%); color: #d1d5db; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 40px 20px; min-height: 100vh; }
+        .robot-header { text-align: center; margin-bottom: 30px; }
+        .robot-face { font-size: 70px; margin-bottom: 10px; }
+        .greeting { color: #00ffcc; font-weight: bold; font-size: 1.2em; text-transform: uppercase; }
+        .music-section { width: 100%; max-width: 600px; background: rgba(20, 16, 36, 0.8); padding: 25px; border-radius: 20px; border: 1px solid #7a5cff; margin-bottom: 50px; }
+        .song-entry { margin-top: 15px; padding: 15px; border-bottom: 1px solid #333; display: flex; flex-direction: column; gap: 10px; }
+        button { cursor: pointer; border-radius: 8px; border: 1px solid #7a5cff; background: transparent; color: #a291ff; padding: 8px 12px; }
+        .del-btn { border-color: #ff0055; color: #ff0055; }
+        .repo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; width: 100%; max-width: 1000px; }
+        .repo-btn { background: rgba(122, 92, 255, 0.1); border: 1px solid #7a5cff; color: #fff; padding: 20px; border-radius: 15px; font-weight: bold; text-transform: uppercase; }
+        .repo-btn:hover { background: #7a5cff; transform: translateY(-5px); }
+    </style>
+</head>
+<body>
+
+    <div class="robot-header">
+        <div class="robot-face">🤖</div>
+        <p class="greeting">¡Hola! Iniciando sistemas de IA...</p>
+        <h1 style="color: #a291ff;">"DESCUBRE MÁS COSAS QUE HACE LA IA"</h1>
+    </div>
+
+    <div class="music-section">
+        <h2 style="color: #00ffcc; text-align: center;">Recomendaciones del Sonido IA</h2>
+        <div id="songsContainer"></div>
+        <button onclick="addSongEntry('')">+ Agregar Nueva Canción</button>
+    </div>
+
+    <div class="repo-grid">
+        <button class="repo-btn" onclick="window.location.href='cancion.html'">Sondio Propio</button>
+        <button class="repo-btn" onclick="window.location.href='click.html'">Mensaje Motivador (2DA)</button>
+        <button class="repo-btn" onclick="window.location.href='GATO.html'">Gatos marcianos</button>
+        <button class="repo-btn" onclick="window.location.href='SECRETO.html'">Mensaje Motivador</button>
+        <button class="repo-btn" onclick="window.location.href='TERRICOLAS.html'">Gatos y tu música</button>
+        <button class="repo-btn" onclick="window.location.href='WALL E.html'">Mensaje de Wall-E</button>
+    </div>
+
+    <br>
+
+    <button class="action-btn" style="margin-top: 0; background: rgba(122, 92, 255, 0.15); border-color: rgba(122, 92, 255, 0.3); color: #00ffcc;"><a href="./Mensajes .html" style="color: #00ffcc;">REGRESAR </a>
+
+    <script>
+        // Cargar canciones guardadas al iniciar
+        window.onload = () => {
+            const saved = JSON.parse(localStorage.getItem('mySongs') || '[]');
+            saved.forEach(url => addSongEntry(url));
+        };
+
+        function addSongEntry(url = '') {
+            const container = document.getElementById('songsContainer');
+            const entry = document.createElement('div');
+            entry.className = 'song-entry';
+            entry.innerHTML = `
+                <input type="text" value="${url}" placeholder="Link YouTube o Spotify..." onchange="handleLink(this)" style="padding:10px; background:#06040d; border:1px solid #7a5cff; color:white; border-radius:5px;">
+                <div class="player"></div>
+                <button class="del-btn" onclick="removeEntry(this)">Eliminar</button>
+            `;
+            container.appendChild(entry);
+            if(url) renderPlayer(entry.querySelector('.player'), url);
+        }
+
+        function handleLink(input) {
+            renderPlayer(input.nextElementSibling, input.value);
+            saveSongs();
+        }
+
+        function renderPlayer(container, url) {
+            let embed = '';
+            if(url.includes('youtube.com') || url.includes('youtu.be')) {
+                const vid = url.split('v=')[1]?.substring(0, 11) || url.split('/').pop();
+                embed = `<iframe src="https://www.youtube.com/embed/${vid}" width="100%" height="200"></iframe>`;
+            } else if(url.includes('spotify.com')) {
+                const trackId = url.split('/').pop().split('?')[0];
+                embed = `<iframe src="https://open.spotify.com/embed/track/${trackId}" width="100%" height="80" frameborder="0"></iframe>`;
+            }
+            container.innerHTML = embed;
+        }
+
+        function saveSongs() {
+            const inputs = Array.from(document.querySelectorAll('.song-entry input')).map(i => i.value);
+            localStorage.setItem('mySongs', JSON.stringify(inputs));
+        }
+
+        function removeEntry(btn) {
+            btn.parentElement.remove();
+            saveSongs();
+        }
+    </script>
+</body>
+</html>

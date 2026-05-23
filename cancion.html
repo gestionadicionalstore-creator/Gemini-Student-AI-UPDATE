@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Para el amor de mi vida: Jemaileth 📼</title>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Courier New', Courier, monospace; /* Tipografía estilo máquina de escribir */
+    }
+
+    body {
+        background: #0b071a;
+        color: #fff;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow-x: hidden;
+        padding: 20px;
+        position: relative;
+    }
+
+    /* PANTALLA DE INICIO */
+    #intro-screen {
+        position: absolute;
+        width: 100%; height: 100%;
+        background: #0b071a;
+        z-index: 10;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: opacity 0.6s ease;
+    }
+    .play-box-btn {
+        background: #ff1a40;
+        color: white;
+        border: none;
+        padding: 15px 40px;
+        font-size: 18px;
+        font-weight: bold;
+        border-radius: 30px;
+        cursor: pointer;
+        box-shadow: 0 0 20px rgba(255, 26, 64, 0.5);
+        letter-spacing: 2px;
+        transition: transform 0.2s;
+    }
+    .play-box-btn:hover {
+        transform: scale(1.05);
+    }
+
+    /* CONTENEDOR PRINCIPAL DÚO */
+    .main-wrapper {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 50px;
+        width: 100%;
+        max-width: 1000px;
+        flex-wrap: wrap; /* Se apila en pantallas pequeñas como celulares */
+        position: relative;
+    }
+
+    /* --- DISEÑO DEL CASSETTE RETRO VINTAGE --- */
+    .cassette-container {
+        position: relative;
+        width: 360px;
+        height: 230px;
+        background: #1c1a27;
+        border-radius: 15px;
+        border: 4px solid #333145;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.6), inset 0 0 15px rgba(0,0,0,0.5);
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    /* Etiqueta del Cassette */
+    .cassette-label {
+        width: 100%;
+        height: 130px;
+        background: linear-gradient(180deg, #ff1a40 0%, #ff4d6d 35%, #fff 35%, #fff 100%);
+        border-radius: 8px;
+        padding: 12px;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        color: #1c1a27;
+    }
+    .cassette-title {
+        font-size: 13px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border-bottom: 2px dashed #ff1a40;
+        padding-bottom: 4px;
+    }
+
+    /* Ventanilla de la cinta */
+    .cassette-window {
+        width: 140px;
+        height: 45px;
+        background: #0b071a;
+        margin: 0 auto;
+        border-radius: 5px;
+        border: 3px solid #333145;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        position: relative;
+    }
+
+    /* Engranajes internos */
+    .wheel {
+        width: 26px;
+        height: 26px;
+        border: 4px dashed #ffea9f;
+        border-radius: 50%;
+        background: #1c1a27;
+    }
+
+    /* Animación de rotación */
+    .spinning {
+        animation: spin 3.5s linear infinite;
+    }
+    @keyframes spin {
+        100% { transform: rotate(360deg); }
+    }
+
+    /* Soporte inferior de la carcasa */
+    .cassette-bottom {
+        width: 180px;
+        height: 30px;
+        background: #252333;
+        margin: 0 auto;
+        border-radius: 5px 5px 0 0;
+        border: 2px solid #333145;
+        border-bottom: none;
+    }
+
+    /* --- DISEÑO DEL TEXTO POÉTICO EN MÁQUINA DE ESCRIBIR --- */
+    .message-container {
+        flex: 1;
+        min-width: 300px;
+        max-width: 520px;
+        background: rgba(28, 26, 39, 0.4);
+        border-left: 4px solid #ff1a40;
+        padding: 30px;
+        border-radius: 0 15px 15px 0;
+        min-height: 280px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        position: relative; 
+    }
+
+    .typewriter-text {
+        font-size: 16px;
+        line-height: 1.6;
+        color: #ffea9f; /* Color crema suave muy legible */
+        text-shadow: 0 0 5px rgba(255, 234, 159, 0.15);
+        white-space: pre-wrap; 
+    }
+
+    /* Cursor de escritura parpadeante */
+    .cursor {
+        display: inline-block;
+        width: 10px;
+        height: 18px;
+        background: #ff1a40;
+        margin-left: 4px;
+        animation: blink 0.8s infinite;
+        vertical-align: middle;
+    }
+    @keyframes blink {
+        0%, 100% { opacity: 0; }
+        50% { opacity: 1; }
+    }
+
+    /* BOTÓN REGRESAR MÁGICO */
+    #return-btn {
+        margin-top: 25px;
+        background: transparent;
+        color: #ff1a40;
+        border: 2px solid #ff1a40;
+        padding: 10px 25px;
+        font-size: 14px;
+        font-weight: bold;
+        border-radius: 20px;
+        cursor: pointer;
+        align-self: flex-start;
+        letter-spacing: 1px;
+        box-shadow: 0 0 10px rgba(255, 26, 64, 0.2);
+        opacity: 0;
+        transform: translateY(10px);
+        transition: all 0.5s ease;
+        pointer-events: none; /* Inactivo hasta que termine el texto */
+    }
+    #return-btn:hover {
+        background: #ff1a40;
+        color: white;
+        box-shadow: 0 0 15px #ff1a40;
+    }
+
+    /* --- GATITO DIBUJADO CON CSS PURO --- */
+    .dancing-cat-container {
+        position: absolute;
+        bottom: -15px;
+        right: -10px;
+        width: 110px;
+        height: 120px;
+        display: none; 
+    }
+
+    /* Activar el gatito al presionar play */
+    .main-wrapper.cat-active .dancing-cat-container {
+        display: block;
+    }
+
+    /* Cuerpo del gatito */
+    .pure-css-cat {
+        width: 70px;
+        height: 70px;
+        background: #1c1b22;
+        border-radius: 50% 50% 40% 40%;
+        position: absolute;
+        bottom: 10px;
+        right: 15px;
+        box-shadow: inset -5px -5px 0px #131218;
+        animation: headBob 0.6s infinite alternate ease-in-out;
+        transform-origin: bottom center;
+    }
+
+    /* Orejas grandes notorias */
+    .cat-ear {
+        width: 0; height: 0;
+        border-left: 15px solid transparent;
+        border-right: 15px solid transparent;
+        border-bottom: 30px solid #1c1b22;
+        position: absolute;
+        top: -15px;
+    }
+    .cat-ear.l { left: 5px; transform: rotate(-20deg); }
+    .cat-ear.r { right: 5px; transform: rotate(20deg); }
+
+    /* Ojos grandes blancos caricatura */
+    .cat-eye {
+        width: 22px; height: 22px;
+        background: #ffffff;
+        border-radius: 50%;
+        position: absolute;
+        top: 22px;
+    }
+    .cat-eye.l { left: 10px; }
+    .cat-eye.r { right: 10px; }
+    
+    /* Pupilas mirando al texto */
+    .cat-eye::after {
+        content: '';
+        width: 10px; height: 18px;
+        background: #111;
+        border-radius: 50%;
+        position: absolute;
+        top: 2px;
+    }
+    .cat-eye.l::after { right: 2px; }
+    .cat-eye.r::after { left: 2px; }
+
+    /* Sonrisa y lengua sacada */
+    .cat-mouth-box {
+        position: absolute;
+        bottom: 14px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 24px; height: 15px;
+    }
+    .cat-mouth-box::before {
+        content: 'w';
+        font-family: sans-serif;
+        color: #111;
+        font-weight: bold;
+        font-size: 16px;
+        position: absolute;
+        top: -7px; left: 4px;
+    }
+    .cat-tongue {
+        width: 10px; height: 12px;
+        background: #ff66a6;
+        border-radius: 0 0 5px 5px;
+        position: absolute;
+        bottom: 0; left: 7px;
+        animation: tongueWiggle 0.3s infinite alternate;
+    }
+
+    /* Cachetitos sonrojados */
+    .cat-blush {
+        width: 8px; height: 4px;
+        background: rgba(255, 26, 64, 0.6);
+        border-radius: 50%;
+        position: absolute;
+        top: 40px;
+    }
+    .cat-blush.l { left: 4px; }
+    .cat-blush.r { right: 4px; }
+
+    /* CORAZONES FLOTANTES ALREDEDOR DEL GATITO */
+    .heart-particles {
+        position: absolute;
+        width: 100%; height: 100%;
+        top: 0; left: 0;
+    }
+    .mini-heart {
+        position: absolute;
+        color: #ff1a40;
+        font-size: 14px;
+        opacity: 0;
+        animation: floatHeart 1.5s infinite linear;
+    }
+    .h1 { left: 20px; animation-delay: 0s; }
+    .h2 { left: 45px; animation-delay: 0.5s; font-size: 18px; }
+    .h3 { left: 70px; animation-delay: 1s; }
+
+    /* ANIMACIONES */
+    @keyframes headBob {
+        0% { transform: scale(1) rotate(-4deg); }
+        100% { transform: scale(1.03) rotate(6deg); }
+    }
+    @keyframes tongueWiggle {
+        0% { height: 9px; }
+        100% { height: 12px; }
+    }
+    @keyframes floatHeart {
+        0% { transform: translateY(80px) scale(0.5); opacity: 0; }
+        50% { opacity: 0.9; }
+        100% { transform: translateY(-20px) scale(1.2); opacity: 0; }
+    }
+</style>
+</head>
+<body>
+
+<div id="intro-screen">
+    <button class="play-box-btn" onclick="playCassette()">PONER PLAY 📼</button>
+</div>
+
+<div class="main-wrapper" id="mainWrapper">
+    
+    <div class="cassette-container">
+        <div class="cassette-label">
+            <div class="cassette-title">Dedicado a Jeamileth ❤️</div>
+            
+            <div class="cassette-window">
+                <div class="wheel" id="wheelL"></div>
+                <div class="wheel" id="wheelR"></div>
+            </div>
+            
+            <div style="font-size: 10px; text-align: right; font-weight: bold; color: #666; letter-spacing: 1px;">DOLBY SYSTEM</div>
+        </div>
+        <div class="cassette-bottom"></div>
+    </div>
+
+    <div class="message-container">
+        <div>
+            <span class="typewriter-text" id="myMessage"></span><span class="cursor" id="myCursor" style="display:none;"></span>
+        </div>
+        
+        <button id="return-btn" onclick="location.reload()">↩ REGRESAR</button>
+        
+        <div class="dancing-cat-container">
+            <div class="heart-particles">
+                <span class="mini-heart h1">❤️</span>
+                <span class="mini-heart h2">❤️</span>
+                <span class="mini-heart h3">❤️</span>
+            </div>
+            <div class="pure-css-cat">
+                <div class="cat-ear l"></div>
+                <div class="cat-ear r"></div>
+                <div class="cat-eye l"></div>
+                <div class="cat-eye r"></div>
+                <div class="cat-blush l"></div>
+                <div class="cat-blush r"></div>
+                <div class="cat-mouth-box">
+                    <div class="cat-tongue"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<audio id="retroSong" src="./ALTO VOLTAJE - YO SIN TU AMOR.mp3"></audio>
+
+<script>
+    const textToType = "A veces las palabras se quedan cortas, por eso dejo que esta melodía hable un poco por mí...\n\nQuiero que sepas, Jeamileth, con toda la fuerza de mi alma, que te amo. Eres esa persona maravillosa que vino a darle un sentido único a mis días, y hoy sé que te quiero en mi vida para siempre.\n\nMi mayor promesa y deseo es mejorar cada día para ti, dar lo mejor de mí y que juntos cumplamos cada uno de nuestros sueños. Quiero que aprendamos a vivir, a superar cualquier tormenta y a crecer tomados de la mano, impulsados únicamente por este inmenso amor que nos une.\n\nConfío ciegamente en ti y en la pureza del amor que me ofreces; tú eres mi lugar seguro en el mundo.\n\nTe amo con todo mi corazón, mi Jeamileth. Eres mi presente y mi futuro más bonito. ✨";
+
+    const audio = document.getElementById('retroSong');
+    const wheelL = document.getElementById('wheelL');
+    const wheelR = document.getElementById('wheelR');
+    const myMessage = document.getElementById('myMessage');
+    const myCursor = document.getElementById('myCursor');
+    const introScreen = document.getElementById('intro-screen');
+    const mainWrapper = document.getElementById('mainWrapper');
+    const returnBtn = document.getElementById('return-btn');
+
+    let index = 0;
+
+    function playCassette() {
+        introScreen.style.opacity = '0';
+        setTimeout(() => introScreen.style.display = 'none', 600);
+
+        audio.play();
+        wheelL.classList.add('spinning');
+        wheelR.classList.add('spinning');
+        mainWrapper.classList.add('cat-active');
+
+        myCursor.style.display = 'inline-block';
+        setTimeout(typeEffect, 1200); 
+    }
+
+    function typeEffect() {
+        if (index < textToType.length) {
+            myMessage.innerHTML += textToType.charAt(index);
+            index++;
+            setTimeout(typeEffect, 65); 
+        } else {
+            myCursor.style.animation = 'blink 1.2s infinite';
+            
+            // Aparece el botón de regresar de forma fluida una vez termine de escribir todo
+            returnBtn.style.opacity = '1';
+            returnBtn.style.transform = 'translateY(0)';
+            returnBtn.style.pointerEvents = 'auto';
+        }
+    }
+</script>
+
+</body>
+</html>

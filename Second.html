@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexus Nexus - Datos Curiosos</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+body {
+    background: #09090b;
+    color: #f4f4f5;
+    min-height: 100vh;
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Encabezado */
+header {
+    text-align: center;
+    margin-bottom: 40px;
+    max-width: 800px;
+}
+
+header h1 {
+    font-size: 36px;
+    font-weight: 800;
+    color: #7a5cff;
+    text-shadow: 0 0 20px rgba(122, 92, 255, 0.4);
+    margin-bottom: 10px;
+}
+
+header p {
+    color: #a1a1aa;
+    font-size: 16px;
+}
+
+/* Filtros de Categoría */
+.filters {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.filter-btn {
+    background: #18181b;
+    color: #a1a1aa;
+    border: 1px solid #27272a;
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.filter-btn:hover {
+    border-color: #7a5cff;
+    color: #fff;
+}
+
+.filter-btn.active {
+    background: #7a5cff;
+    color: #fff;
+    border-color: #7a5cff;
+    box-shadow: 0 0 15px rgba(122, 92, 255, 0.4);
+}
+
+/* Contenedor de Tarjetas (Grid Responsivo) */
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+    max-width: 1200px;
+    width: 100%;
+}
+
+/* Tarjetas */
+.fact-card {
+    background: #18181b;
+    border: 1px solid #27272a;
+    border-radius: 20px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    animation: fadeIn 0.4s ease forwards;
+}
+
+.fact-card:hover {
+    transform: translateY(-5px);
+    border-color: #7a5cff;
+    box-shadow: 0 10px 25px rgba(122, 92, 255, 0.15);
+}
+
+.card-tag {
+    align-self: flex-start;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.tag-tecnologia { background: rgba(122, 92, 255, 0.2); color: #a291ff; }
+.tag-humanidad { background: rgba(0, 255, 204, 0.15); color: #00ffcc; }
+.tag-innovacion { background: rgba(255, 0, 85, 0.15); color: #ff0055; }
+
+.fact-card h3 {
+    font-size: 18px;
+    color: #fff;
+    font-weight: 700;
+}
+
+.fact-card p {
+    color: #d4d4d8;
+    font-size: 14px;
+    line-height: 1.6;
+    flex: 1;
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsivo para celulares */
+@media (max-width: 600px) {
+    header h1 { font-size: 28px; }
+    .cards-grid { grid-template-columns: 100%; }
+}
+</style>
+</head>
+<body>
+
+    <header>
+        <h1>🌌 Nexus Curiosities</h1>
+        <p>Explora los hitos más asombrosos sobre el ingenio humano, la evolución tecnológica y las ideas que transforman el mañana. <a href="./SECRETO.html">Simple</a></p>
+    </header>
+
+    <div class="filters">
+        <button class="filter-btn active" onclick="filterCategory('all')">Todo</button>
+        <button class="filter-btn" onclick="filterCategory('tecnologia')">Tecnología</button>
+        <button class="filter-btn" onclick="filterCategory('humanidad')">Humanidad</button>
+        <button class="filter-btn" onclick="filterCategory('innovacion')">Innovación</button>
+    </div>
+
+    <div class="cards-grid" id="factsGrid">
+        </div>
+<br><br>
+    <section>
+        <a href="./Mensajes .html">REGRESAR</a>
+    </section>
+<script>
+// Base de datos de curiosidades organizada por categorías
+const datosCuriosos = [
+    {
+        categoria: "tecnologia",
+        titulo: "El origen del 'Bug' informático",
+        descripcion: "En 1947, la científica Grace Hopper encontró una polilla real atrapada entre los relés del ordenador Harvard Mark II, causando un fallo en el sistema. Desde entonces, llamamos 'bugs' a los errores de código."
+    },
+    {
+        categoria: "humanidad",
+        titulo: "La biblioteca del ADN",
+        descripcion: "Un solo gramo de ADN humano tiene la capacidad teórica de almacenar hasta 215 petabytes (215 millones de gigabytes) de datos digitales sin degradarse durante miles de años."
+    },
+    {
+        categoria: "innovacion",
+        titulo: "El nacimiento de la Impresión 3D",
+        descripcion: "Aunque parece una tecnología muy reciente, la impresión 3D (estereolitografía) fue inventada y patentada por Charles Hull en el año 1984, revolucionando el prototipado industrial mucho antes del boom comercial."
+    },
+    {
+        categoria: "tecnologia",
+        titulo: "El poder de tu smartphone",
+        descripcion: "Los teléfonos móviles que llevamos hoy en el bolsillo tienen millones de veces más capacidad de memoria y poder de procesamiento que todas las computadoras utilizadas por la NASA para enviar al ser humano a la Luna en 1969."
+    },
+    {
+        categoria: "humanidad",
+        titulo: "Velocidad del pensamiento",
+        descripcion: "Los impulsos nerviosos en el cerebro humano viajan a una velocidad asombrosa de aproximadamente 400 kilómetros por hora, superando la velocidad máxima de la mayoría de los autos deportivos modernos."
+    },
+    {
+        categoria: "innovacion",
+        titulo: "Plásticos del futuro: El filamento PLA",
+        descripcion: "El filamento PLA utilizado en la impresión 3D de alta precisión es un biopolímero derivado al 100% de recursos renovables como el almidón de maíz o la caña de azúcar, haciéndolo totalmente biodegradable bajo condiciones adecuadas."
+    },
+    {
+        categoria: "tecnologia",
+        titulo: "El primer servidor web del mundo",
+        descripcion: "Tim Berners-Lee instaló el primer servidor de la World Wide Web en una computadora NeXT. Tenía una etiqueta pegada a mano en papel rojo que advertía: '¡Esta máquina es un servidor. NO LA APAGUE!'."
+    },
+    {
+        categoria: "humanidad",
+        titulo: "Memoria fotográfica colectiva",
+        descripcion: "Se estima que cada dos minutos, la humanidad toma más fotografías de las que se tomaron en todo el siglo XIX combinado. Nuestra documentación visual se ha vuelto exponencial."
+    },
+    {
+        categoria: "innovacion",
+        titulo: "Realidad Aumentada y el entorno real",
+        descripcion: "A diferencia de la Realidad Virtual, la Realidad Inmersiva y Aumentada superpone geometrías complejas directamente sobre el espacio físico del usuario en tiempo real, permitiendo interacciones educativas e históricas interconectadas."
+    }
+];
+
+const grid = document.getElementById("factsGrid");
+
+// Función para mostrar las tarjetas en pantalla
+function displayFacts(facts) {
+    grid.innerHTML = ""; // Limpiar pantalla
+    
+    facts.forEach(fact => {
+        const card = document.createElement("div");
+        card.classList.add("fact-card");
+        
+        card.innerHTML = `
+            <span class="card-tag tag-${fact.categoria}">${fact.categoria}</span>
+            <h3>${fact.titulo}</h3>
+            <p>${fact.descripcion}</p>
+        `;
+        
+        grid.appendChild(card);
+    });
+}
+
+// Función para filtrar por categorías usando los botones
+function filterCategory(category) {
+    // Actualizar estado visual de los botones
+    const buttons = document.querySelectorAll(".filter-btn");
+    buttons.forEach(btn => btn.classList.remove("active"));
+    event.target.classList.add("active");
+    
+    // Filtrar los datos
+    if (category === "all") {
+        displayFacts(datosCuriosos);
+    } else {
+        const filtered = datosCuriosos.filter(fact => fact.categoria === category);
+        displayFacts(filtered);
+    }
+}
+
+// Cargar todos los datos por defecto al abrir la página
+displayFacts(datosCuriosos);
+
+
+
+</script>
+</body>
+</html>
